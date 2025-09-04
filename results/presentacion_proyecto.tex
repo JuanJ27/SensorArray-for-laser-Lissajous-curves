@@ -130,14 +130,14 @@
             block/.style={rectangle, draw, fill=blue!20, text width=2.2cm, text centered, rounded corners},
             line/.style={draw, ->, thick}
         ]
-            \node [block] (laser) {Fuente Láser\\635nm};
-            \node [block, right of=laser, xshift=0.5cm] (sensors) {Arreglo de\\5 Sensores};
+            \node [block] (led) {Fuente Láser\\635nm};
+            \node [block, right of=led, xshift=0.5cm] (sensors) {Arreglo de\\5 Sensores};
             \node [block, right of=sensors, xshift=0.5cm] (esp32) {ESP32\\MicroPython};
             \node [block, below of=esp32, yshift=0.5cm] (storage) {Almacenamiento\\CSV};
             \node [block, below of=sensors, yshift=0.5cm] (analysis) {Análisis\\Python/Jupyter};
             \node [block, left of=analysis, xshift=-0.5cm] (viz) {Visualización\\y Resultados};
             
-            \path [line] (laser) -- (sensors);
+            \path [line] (led) -- (sensors);
             \path [line] (sensors) -- (esp32);
             \path [line] (esp32) -- (storage);
             \path [line] (storage) -- (analysis);
@@ -147,10 +147,10 @@
     
     \vspace{0.5cm}
     \begin{itemize}
-        \item \textbf{Entrada:} Láser de 635nm con movimiento controlado
+        \item \textbf{Entrada:} Led de 635nm con movimiento controlado
         \item \textbf{Detección:} 5 fototransistores OP598 distribuidos espacialmente
         \item \textbf{Procesamiento:} ESP32 con adquisición a 10Hz
-        \item \textbf{Análisis:} Python con librerías científicas
+        \item \textbf{Análisis:} Python
     \end{itemize}
 \end{frame}
 
@@ -161,9 +161,9 @@
             \textbf{Lista de Componentes:}
             \begin{itemize}
                 \item ESP32 DevKit v1
-                \item 5× Fototransistores OP598 NPN
-                \item 5× Resistencias 100k$\Omega$
-                \item LED láser 635nm
+                \item 5x Fototransistores OP598 NPN
+                \item 5x Resistencias 100k$\Omega$
+                \item LED 635nm
                 \item Protoboard y cables
             \end{itemize}
             
@@ -242,7 +242,7 @@
         \item \textbf{Tiempo:} Milisegundos desde inicio de captura
         \item \textbf{Sensores:} Valores ADC (0-4095, 12-bit)
         \item \textbf{Frecuencia:} 10Hz (100ms entre muestras)
-        \item \textbf{Rango útil:} 200-3500 ADC (evita saturación)
+        \item \textbf{Rango útil:} 100-3700 ADC (evita saturación)
     \end{itemize}
 \end{frame}
 
@@ -260,25 +260,21 @@
                 \item \textcolor{UniBlue}{\textbf{Barrido Horizontal}}
                 \begin{itemize}
                     \item Movimiento lineal en X
-                    \item Frecuencia: 0.5-2 Hz
                 \end{itemize}
                 
                 \item \textcolor{UniRed}{\textbf{Barrido Vertical}}
                 \begin{itemize}
                     \item Movimiento lineal en Y
-                    \item Sincronización temporal
                 \end{itemize}
                 
                 \item \textcolor{UniGreen}{\textbf{Patrones Diagonales}}
                 \begin{itemize}
                     \item Movimiento esquina a esquina
-                    \item Trayectorias complejas
                 \end{itemize}
                 
                 \item \textcolor{UniOrange}{\textbf{Movimiento Aleatorio}}
                 \begin{itemize}
                     \item Para calibración y pruebas
-                    \item Validación de algoritmos
                 \end{itemize}
             \end{enumerate}
         \end{column}
