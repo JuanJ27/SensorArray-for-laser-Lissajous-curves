@@ -19,7 +19,7 @@ Coordenadas espaciales de los sensores:
 - Naranja: (0.8, 0.0) - Pin 35
 - Rojo: (1.0, 1.0) - Pin 4
 
-Autor: Juan J
+Autor: Juan Jxddd
 Fecha: 2024
 """
 
@@ -46,7 +46,7 @@ print("Inicializando sensores...")
 sensors = {}
 for sensor_name, config in SENSOR_CONFIG.items():
     sensors[sensor_name] = ADC(Pin(config['pin']))
-    print(f"  {sensor_name.capitalize()}: Pin {config['pin']} -> {config['coords']}")
+    print(f"  {sensor_name}: Pin {config['pin']} -> {config['coords']}")
 
 # =============================================================================
 # CONFIGURACIÓN ADC
