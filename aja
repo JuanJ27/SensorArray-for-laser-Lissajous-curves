@@ -1,0 +1,5 @@
+❯ sudo chmod a+rw /dev/ttyUSB0
+
+[sudo] password for juanm:           
+❯ ampy --port /dev/ttyUSB0 put hardware/sensor_array.py main.py
+❯ python3 -m serial.tools.miniterm /dev/ttyUSB0 115200

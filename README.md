@@ -70,16 +70,32 @@ jupyter>=1.0.0
 
 4. **Cargar código del sensor**
    ```bash
-   # Copiar sensor_array.py al ESP32
+   # Copiar sensor_array.py al ESP32 como main.py
    ampy --port /dev/ttyUSB0 put hardware/sensor_array.py main.py
+   ```
+
+5. **Cargar prueba de latencia**
+   ```bash
+   # Copiar latency_test.py al ESP32 para medir latencia practica
+   ampy --port /dev/ttyUSB0 put hardware/latency_test.py latency_test.py
    ```
 
 ### Uso Básico
 1. **Ejecutar captura de datos**
-   - El ESP32 iniciará automáticamente la captura
-   - Los datos se guardan en formato CSV
+   - `sensor_array.py` realiza muestreo periodico de los 5 sensores
+   - El ESP32 emite las muestras CSV por puerto serie
+   - La PC guarda los archivos con fecha y hora en `data/captures/`
+   ```bash
+   python3 tools/capture_sensor_data.py --port /dev/ttyUSB0
+   ```
 
-2. **Análisis de datos**
+2. **Ejecutar caracterizacion temporal**
+   - `latency_test.py` mide la latencia practica del sistema con un LED en `GPIO 17`
+   - El sensor objetivo por defecto es el verde en `GPIO 36`
+   - La medicion usa ADC con umbral calibrado y polling intensivo
+   - El resultado representa latencia de deteccion en MicroPython, no la respuesta intrinseca aislada del OP598
+
+3. **Análisis de datos**
    ```bash
    jupyter notebook notebooks/analisis_fototransistores.ipynb
    ```
@@ -91,8 +107,11 @@ jupyter>=1.0.0
 ├── 📄 README.md              # Este archivo
 ├── 📄 LICENSE                # Licencia del proyecto
 ├── 📄 requirements.txt       # Dependencias Python
+├── 📁 tools/                 # Scripts de captura en PC
+│   └── 📄 capture_sensor_data.py
 ├── 📁 hardware/              # Código y firmware del hardware
-│   ├── 📄 sensor_array.py    # Código principal MicroPython
+│   ├── 📄 sensor_array.py    # Muestreo periódico de 5 sensores
+│   ├── 📄 latency_test.py    # Medición de latencia con 1 sensor
 │   └── 📁 firmware/          # Firmware ESP32
 ├── 📁 notebooks/             # Análisis y visualizaciones
 │   └── 📄 analisis_fototransistores.ipynb
@@ -129,6 +148,17 @@ tiempo,azul,verde,amarillo,naranja,rojo
 ```
 - **Tiempo**: Timestamp en milisegundos
 - **Sensores**: Valores ADC (0-4095, resolución 12-bit)
+- **Ubicacion de guardado**: La PC crea archivos como `sensor_data_20260428_121530.csv`
+
+### Medicion de Latencia
+La prueba de latencia usa un LED externo conectado a `GPIO 17` y el sensor verde
+en `GPIO 36`. El script calibra un umbral ADC a partir de un nivel oscuro y uno
+iluminado, luego mide en microsegundos el tiempo entre encender el LED y
+detectar el cruce de umbral.
+
+Esta prueba sirve para caracterizar la latencia practica de la cadena completa
+en ESP32 con MicroPython. No debe interpretarse como una medicion aislada de la
+respuesta fisica del fototransistor.
 
 ## Resultados
 
