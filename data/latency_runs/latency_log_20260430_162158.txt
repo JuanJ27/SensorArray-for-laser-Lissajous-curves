@@ -1,0 +1,13 @@
+CSV_ROW,41,,256
+CSV_ROW,42,,258
+CSV_ROW,43,,258
+CSV_ROW,44,,258
+CSV_ROW,45,,256
+CSV_ROW,46,,256
+CSV_ROW,47,,256
+CSV_ROW,48,,256
+CSV_ROW,49,,256
+CSV_ROW,50,,260
+MicroPython v1.22.2 on 2024-02-22; Generic ESP32 module with ESP32
+Type "help()" for more information.
+>>> 

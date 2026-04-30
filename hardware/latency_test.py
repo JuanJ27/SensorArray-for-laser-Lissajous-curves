@@ -2,16 +2,14 @@
 Latency Test for ESP32 + OP598 Phototransistor
 ==============================================
 
-Este script mide la latencia practica del sistema completo:
+Este script mide la latencia practica del montaje completo:
 
 1. Se enciende un LED conectado a un pin GPIO del ESP32.
 2. Se observa el cambio analogico en un fototransistor OP598.
-3. Se detecta el cruce de un umbral mediante polling intensivo del ADC.
-4. Se reporta la diferencia temporal en microsegundos.
+3. Se detecta el cruce de un umbral fijo mediante polling intensivo del ADC.
+4. Se registra la latencia en microsegundos.
 
-La medicion resultante representa la latencia de deteccion en esta plataforma
-con MicroPython. No es una medicion aislada de la respuesta intrinseca del
-fototransistor.
+El ESP32 solo lee y emite los datos; el procesamiento se hace en la PC.
 """
 
 from machine import Pin, ADC
@@ -25,11 +23,19 @@ import time
 LED_PIN = 17
 SENSOR_PIN = 36
 
-CALIBRATION_SAMPLES = 64
-TRIAL_COUNT = 50
-SETTLE_MS = 10
-TIMEOUT_US = 5000
-INTER_TRIAL_DELAY_MS = 100
+TRIAL_COUNT = 5
+SETTLE_MS = 2
+TIMEOUT_US = 10000
+INTER_TRIAL_DELAY_MS = 20
+
+# Duracion del destello en microsegundos. 0 = sin limite.
+FLASH_PULSE_US = 500
+
+# Umbral fijo en cuentas ADC. Ajustar segun el montaje real.
+THRESHOLD_ADC = 55
+
+# Direccion del cambio esperado: 1 si la luz sube la lectura, -1 si baja.
+DIRECTION = 1
 
 
 # =============================================================================
@@ -57,50 +63,16 @@ configure_adc(sensor_adc)
 # UTILIDADES
 # =============================================================================
 
-def average_samples(adc, sample_count):
+def crossed_threshold(reading, threshold, direction):
     """
-    Calcula el promedio de varias muestras ADC para estabilizar la calibracion.
+    Evalua si la lectura ya cruzo el umbral segun la polaridad esperada.
     """
-    total = 0
-    for _ in range(sample_count):
-        total += adc.read()
-    return total // sample_count
+    if direction > 0:
+        return reading >= threshold
+    return reading <= threshold
 
 
-def median(values):
-    """
-    Calcula la mediana sin depender del modulo statistics.
-    """
-    ordered = sorted(values)
-    count = len(ordered)
-    middle = count // 2
-
-    if count % 2:
-        return ordered[middle]
-
-    return (ordered[middle - 1] + ordered[middle]) / 2
-
-
-def calibrate_threshold(adc, led):
-    """
-    Mide nivel oscuro y nivel iluminado para definir un umbral util.
-    """
-    led.value(0)
-    time.sleep_ms(SETTLE_MS)
-    dark_level = average_samples(adc, CALIBRATION_SAMPLES)
-
-    led.value(1)
-    time.sleep_ms(SETTLE_MS)
-    lit_level = average_samples(adc, CALIBRATION_SAMPLES)
-
-    led.value(0)
-    time.sleep_ms(SETTLE_MS)
-
-    threshold = (dark_level + lit_level) // 2
-    return dark_level, lit_level, threshold
-
-
-def measure_latency(adc, led, threshold):
+def measure_latency(adc, led, threshold, direction):
     """
     Ejecuta una sola medicion de latencia usando polling intensivo del ADC.
     """
@@ -110,26 +82,36 @@ def measure_latency(adc, led, threshold):
     start_us = time.ticks_us()
     led.value(1)
 
-    detect_us = None
-    timed_out = False
+    pulse_end_us = None
+    if FLASH_PULSE_US > 0:
+        pulse_end_us = time.ticks_add(start_us, FLASH_PULSE_US)
+    pulse_done = False
 
+    last_reading = adc.read()
     while True:
-        reading = adc.read()
-        if reading >= threshold:
-            detect_us = time.ticks_us()
-            break
+        last_reading = adc.read()
+        now_us = time.ticks_us()
 
-        elapsed_us = time.ticks_diff(time.ticks_us(), start_us)
-        if elapsed_us >= TIMEOUT_US:
-            timed_out = True
-            break
+        if crossed_threshold(last_reading, threshold, direction):
+            led.value(0)
+            return time.ticks_diff(now_us, start_us), last_reading
 
-    led.value(0)
+        if pulse_end_us is not None and not pulse_done:
+            if time.ticks_diff(now_us, pulse_end_us) >= 0:
+                led.value(0)
+                pulse_done = True
 
-    if timed_out:
-        return None
+        if time.ticks_diff(now_us, start_us) >= TIMEOUT_US:
+            led.value(0)
+            return None, last_reading
 
-    return time.ticks_diff(detect_us, start_us)
+
+def direction_label(direction):
+    if direction > 0:
+        return "rising"
+    if direction < 0:
+        return "falling"
+    return "unknown"
 
 
 def print_configuration():
@@ -138,32 +120,22 @@ def print_configuration():
     print("=" * 60)
     print("LED pin: {}".format(LED_PIN))
     print("Sensor pin: {}".format(SENSOR_PIN))
-    print("Calibration samples: {}".format(CALIBRATION_SAMPLES))
     print("Trial count: {}".format(TRIAL_COUNT))
     print("Settle time: {} ms".format(SETTLE_MS))
     print("Timeout: {} us".format(TIMEOUT_US))
+    print("Flash pulse: {} us".format(FLASH_PULSE_US))
+    print("Threshold ADC: {}".format(THRESHOLD_ADC))
+    print("Direction: {}".format(direction_label(DIRECTION)))
     print("=" * 60)
 
 
-def print_summary(results, failures, dark_level, lit_level, threshold):
-    print("\n" + "=" * 60)
-    print("RESUMEN")
-    print("=" * 60)
-    print("Dark level: {}".format(dark_level))
-    print("Lit level: {}".format(lit_level))
-    print("Threshold: {}".format(threshold))
-    print("Trials OK: {}".format(len(results)))
-    print("Trials failed: {}".format(failures))
+def print_csv_header():
+    print("CSV_HEADER,trial,latency_us,adc")
 
-    if not results:
-        print("No se obtuvieron mediciones validas.")
-        return
 
-    average_latency = sum(results) / len(results)
-    print("Latency min: {} us".format(min(results)))
-    print("Latency max: {} us".format(max(results)))
-    print("Latency avg: {:.1f} us".format(average_latency))
-    print("Latency median: {} us".format(median(results)))
+def print_csv_trial(trial_number, latency_us, adc_value):
+    line = "CSV_ROW,{},{},{}".format(trial_number, latency_us, adc_value)
+    print(line)
 
 
 def main():
@@ -171,52 +143,18 @@ def main():
     print("Asegura la alineacion del LED con el sensor antes de comenzar.")
     time.sleep_ms(1000)
 
-    dark_level, lit_level, threshold = calibrate_threshold(sensor_adc, led_pin)
+    print_csv_header()
 
-    print("\nCalibracion completada:")
-    print("  Dark level: {}".format(dark_level))
-    print("  Lit level: {}".format(lit_level))
-    print("  Threshold: {}".format(threshold))
-
-    if lit_level <= dark_level:
-        print("\n[ERROR] El nivel iluminado no supera al nivel oscuro.")
-        print("Revisa alineacion, luz ambiente y conexion del LED.")
-        return
-
-    results = []
-    failures = 0
-
-    print("\nIniciando mediciones...")
     for trial_number in range(1, TRIAL_COUNT + 1):
-        latency_us = measure_latency(sensor_adc, led_pin, threshold)
-
+        latency_us, trigger_reading = measure_latency(
+            sensor_adc, led_pin, THRESHOLD_ADC, DIRECTION
+        )
         if latency_us is None:
-            failures += 1
-            print(
-                "[{:02d}/{:02d}] timeout | dark={} lit={} threshold={}".format(
-                    trial_number,
-                    TRIAL_COUNT,
-                    dark_level,
-                    lit_level,
-                    threshold,
-                )
-            )
+            print_csv_trial(trial_number, "", trigger_reading)
         else:
-            results.append(latency_us)
-            print(
-                "[{:02d}/{:02d}] latency={} us | dark={} lit={} threshold={}".format(
-                    trial_number,
-                    TRIAL_COUNT,
-                    latency_us,
-                    dark_level,
-                    lit_level,
-                    threshold,
-                )
-            )
+            print_csv_trial(trial_number, latency_us, trigger_reading)
 
         time.sleep_ms(INTER_TRIAL_DELAY_MS)
-
-    print_summary(results, failures, dark_level, lit_level, threshold)
 
 
 if __name__ == "__main__":

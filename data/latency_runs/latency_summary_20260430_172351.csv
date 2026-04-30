@@ -1,0 +1,2 @@
+min_latency_us,max_latency_us,avg_latency_us,median_latency_us,failures,min_freq_hz,avg_freq_hz,median_freq_hz,max_freq_hz
+2547.000000,3713.000000,2684.860000,2700.000000,0,392.618767,372.458899,370.370370,269.323997

@@ -1,0 +1,75 @@
+ets Jul 29 2019 12:21:46
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:4728
+load:0x40078000,len:14888
+load:0x40080400,len:3368
+entry 0x400805cc
+============================================================
+PRUEBA DE LATENCIA - ESP32 + OP598
+============================================================
+LED pin: 17
+Sensor pin: 36
+Trial count: 50
+Settle time: 2 ms
+Timeout: 10000 us
+Threshold ADC: 55
+Direction: rising
+============================================================
+Asegura la alineacion del LED con el sensor antes de comenzar.
+CSV_HEADER,trial,latency_us,adc
+CSV_ROW,1,548,64
+CSV_ROW,2,461,79
+CSV_ROW,3,856,112
+CSV_ROW,4,615,55
+CSV_ROW,5,850,67
+CSV_ROW,6,461,75
+CSV_ROW,7,773,87
+CSV_ROW,8,691,58
+CSV_ROW,9,618,57
+CSV_ROW,10,615,65
+CSV_ROW,11,542,67
+CSV_ROW,12,1000,64
+CSV_ROW,13,695,60
+CSV_ROW,14,772,64
+CSV_ROW,15,773,87
+CSV_ROW,16,615,55
+CSV_ROW,17,927,80
+CSV_ROW,18,615,61
+CSV_ROW,19,926,66
+CSV_ROW,20,768,64
+CSV_ROW,21,696,56
+CSV_ROW,22,697,61
+CSV_ROW,23,619,64
+CSV_ROW,24,845,57
+CSV_ROW,25,541,67
+CSV_ROW,26,922,74
+CSV_ROW,27,773,78
+CSV_ROW,28,692,65
+CSV_ROW,29,695,65
+CSV_ROW,30,774,74
+CSV_ROW,31,849,80
+CSV_ROW,32,769,60
+CSV_ROW,33,773,62
+CSV_ROW,34,768,70
+CSV_ROW,35,695,56
+CSV_ROW,36,769,77
+CSV_ROW,37,695,74
+CSV_ROW,38,774,76
+CSV_ROW,39,849,66
+CSV_ROW,40,845,80
+CSV_ROW,41,695,64
+CSV_ROW,42,691,60
+CSV_ROW,43,773,71
+CSV_ROW,44,845,75
+CSV_ROW,45,849,69
+CSV_ROW,46,697,55
+CSV_ROW,47,695,59
+CSV_ROW,48,692,55
+CSV_ROW,49,695,58
+CSV_ROW,50,769,62
+MicroPython v1.22.2 on 2024-02-22; Generic ESP32 module with ESP32
+Type "help()" for more information.
+>>> 
