@@ -1,0 +1,51 @@
+[36/50] latency=1945 us | freq=514.1 Hz | adc=50 | threshold=47
+CSV_ROW,36,ok,1945,514.138794,50,0,47,0,189,189,rising,threshold
+[37/50] latency=1931 us | freq=517.9 Hz | adc=48 | threshold=47
+CSV_ROW,37,ok,1931,517.866394,48,0,47,0,189,189,rising,threshold
+[38/50] latency=1935 us | freq=516.8 Hz | adc=48 | threshold=47
+CSV_ROW,38,ok,1935,516.795837,48,0,47,0,189,189,rising,threshold
+[39/50] latency=1931 us | freq=517.9 Hz | adc=51 | threshold=47
+CSV_ROW,39,ok,1931,517.866394,51,0,47,0,189,189,rising,threshold
+[40/50] latency=1935 us | freq=516.8 Hz | adc=49 | threshold=47
+CSV_ROW,40,ok,1935,516.795837,49,0,47,0,189,189,rising,threshold
+[41/50] latency=1937 us | freq=516.3 Hz | adc=48 | threshold=47
+CSV_ROW,41,ok,1937,516.262268,48,0,47,0,189,189,rising,threshold
+[42/50] latency=1934 us | freq=517.1 Hz | adc=50 | threshold=47
+CSV_ROW,42,ok,1934,517.063110,50,0,47,0,189,189,rising,threshold
+[43/50] latency=2006 us | freq=498.5 Hz | adc=61 | threshold=47
+CSV_ROW,43,ok,2006,498.504486,61,0,47,0,189,189,rising,threshold
+[44/50] latency=1931 us | freq=517.9 Hz | adc=49 | threshold=47
+CSV_ROW,44,ok,1931,517.866394,49,0,47,0,189,189,rising,threshold
+[45/50] latency=2008 us | freq=498.0 Hz | adc=47 | threshold=47
+CSV_ROW,45,ok,2008,498.007965,47,0,47,0,189,189,rising,threshold
+[46/50] latency=1932 us | freq=517.6 Hz | adc=51 | threshold=47
+CSV_ROW,46,ok,1932,517.598328,51,0,47,0,189,189,rising,threshold
+[47/50] latency=1930 us | freq=518.1 Hz | adc=57 | threshold=47
+CSV_ROW,47,ok,1930,518.134705,57,0,47,0,189,189,rising,threshold
+[48/50] latency=1938 us | freq=516.0 Hz | adc=47 | threshold=47
+CSV_ROW,48,ok,1938,515.995850,47,0,47,0,189,189,rising,threshold
+[49/50] latency=1931 us | freq=517.9 Hz | adc=48 | threshold=47
+CSV_ROW,49,ok,1931,517.866394,48,0,47,0,189,189,rising,threshold
+[50/50] latency=1940 us | freq=515.5 Hz | adc=48 | threshold=47
+CSV_ROW,50,ok,1940,515.463928,48,0,47,0,189,189,rising,threshold
+============================================================
+RESUMEN
+============================================================
+Dark level: 0
+Lit level: 189
+Contrast: 189
+Threshold: 47
+Trials OK: 50
+Trials failed: 0
+Latency min: 1872 us
+Latency max: 2024 us
+Latency avg: 1945.4 us
+Latency median: 1935.0 us
+Equivalent freq @ min latency: 534.2 Hz
+Equivalent freq @ avg latency: 514.0 Hz
+Equivalent freq @ median latency: 516.8 Hz
+Equivalent freq @ max latency: 494.1 Hz
+CSV_SUMMARY,1872,2024,1945.420044,1935.0,0,534.188049,514.027832,516.795837,494.071136
+MicroPython v1.22.2 on 2024-02-22; Generic ESP32 module with ESP32
+Type "help()" for more information.
+>>> 

@@ -1,0 +1,49 @@
+[37/50] latency=1250 us | freq=800.0 Hz | adc=137 | threshold=89
+CSV_ROW,37,ok,1250,800.000000,137,0,89,0,357,357,rising,threshold
+[38/50] latency=1175 us | freq=851.1 Hz | adc=95 | threshold=89
+CSV_ROW,38,ok,1175,851.063843,95,0,89,0,357,357,rising,threshold
+[39/50] latency=1250 us | freq=800.0 Hz | adc=112 | threshold=89
+CSV_ROW,39,ok,1250,800.000000,112,0,89,0,357,357,rising,threshold
+[40/50] latency=1250 us | freq=800.0 Hz | adc=95 | threshold=89
+CSV_ROW,40,ok,1250,800.000000,95,0,89,0,357,357,rising,threshold
+[41/50] latency=1242 us | freq=805.2 Hz | adc=117 | threshold=89
+CSV_ROW,41,ok,1242,805.152954,117,0,89,0,357,357,rising,threshold
+[42/50] latency=1191 us | freq=839.6 Hz | adc=97 | threshold=89
+CSV_ROW,42,ok,1191,839.630554,97,0,89,0,357,357,rising,threshold
+[43/50] latency=1168 us | freq=856.2 Hz | adc=95 | threshold=89
+CSV_ROW,43,ok,1168,856.164368,95,0,89,0,357,357,rising,threshold
+[44/50] latency=1257 us | freq=795.5 Hz | adc=112 | threshold=89
+CSV_ROW,44,ok,1257,795.544922,112,0,89,0,357,357,rising,threshold
+[45/50] latency=1174 us | freq=851.8 Hz | adc=118 | threshold=89
+CSV_ROW,45,ok,1174,851.788757,118,0,89,0,357,357,rising,threshold
+[46/50] latency=1179 us | freq=848.2 Hz | adc=105 | threshold=89
+CSV_ROW,46,ok,1179,848.176392,105,0,89,0,357,357,rising,threshold
+[47/50] latency=1099 us | freq=909.9 Hz | adc=101 | threshold=89
+CSV_ROW,47,ok,1099,909.918091,101,0,89,0,357,357,rising,threshold
+[48/50] latency=1183 us | freq=845.3 Hz | adc=95 | threshold=89
+CSV_ROW,48,ok,1183,845.308533,95,0,89,0,357,357,rising,threshold
+[49/50] latency=1027 us | freq=973.7 Hz | adc=100 | threshold=89
+CSV_ROW,49,ok,1027,973.709839,100,0,89,0,357,357,rising,threshold
+[50/50] latency=1107 us | freq=903.3 Hz | adc=90 | threshold=89
+CSV_ROW,50,ok,1107,903.342346,90,0,89,0,357,357,rising,threshold
+============================================================
+RESUMEN
+============================================================
+Dark level: 0
+Lit level: 357
+Contrast: 357
+Threshold: 89
+Trials OK: 50
+Trials failed: 0
+Latency min: 1019 us
+Latency max: 1258 us
+Latency avg: 1185.5 us
+Latency median: 1181.0 us
+Equivalent freq @ min latency: 981.4 Hz
+Equivalent freq @ avg latency: 843.5 Hz
+Equivalent freq @ median latency: 846.7 Hz
+Equivalent freq @ max latency: 794.9 Hz
+CSV_SUMMARY,1019,1258,1185.479980,1181.0,0,981.354248,843.540161,846.740051,794.912537
+MicroPython v1.22.2 on 2024-02-22; Generic ESP32 module with ESP32
+Type "help()" for more information.
+>>> 

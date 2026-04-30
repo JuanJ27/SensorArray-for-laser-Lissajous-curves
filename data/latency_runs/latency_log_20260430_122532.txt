@@ -1,0 +1,149 @@
+MPY: soft reboot
+============================================================
+PRUEBA DE LATENCIA - ESP32 + OP598
+============================================================
+LED pin: 17
+Sensor pin: 36
+Calibration samples: 64
+Trial count: 50
+Settle time: 2 ms
+Timeout: 10000 us
+Threshold ratio: 0.25
+Calibration pulse: 25 ms
+Calibration retries: 3
+============================================================
+Asegura la alineacion del LED con el sensor antes de comenzar.
+Calibracion completada:
+  Dark level: 0
+  Lit avg: 287
+  Lit min: 223
+  Lit max: 303
+  Selected lit level: 303
+  Contrast: 303
+  Direction: rising
+  Threshold: 75
+  Calibration mode: threshold
+  Calibration attempt used: 1
+CSV_HEADER,trial,status,latency_us,freq_hz,adc,baseline_adc,threshold,dark_level,lit_level,contrast,direction,mode
+Iniciando mediciones...
+[01/50] latency=1157 us | freq=864.3 Hz | adc=86 | threshold=75
+CSV_ROW,1,ok,1157,864.304260,86,0,75,0,303,303,rising,threshold
+[02/50] latency=1096 us | freq=912.4 Hz | adc=80 | threshold=75
+CSV_ROW,2,ok,1096,912.408752,80,0,75,0,303,303,rising,threshold
+[03/50] latency=1166 us | freq=857.6 Hz | adc=90 | threshold=75
+CSV_ROW,3,ok,1166,857.632935,90,0,75,0,303,303,rising,threshold
+[04/50] latency=1174 us | freq=851.8 Hz | adc=94 | threshold=75
+CSV_ROW,4,ok,1174,851.788757,94,0,75,0,303,303,rising,threshold
+[05/50] latency=1088 us | freq=919.1 Hz | adc=77 | threshold=75
+CSV_ROW,5,ok,1088,919.117676,77,0,75,0,303,303,rising,threshold
+[06/50] latency=1099 us | freq=909.9 Hz | adc=80 | threshold=75
+CSV_ROW,6,ok,1099,909.918091,80,0,75,0,303,303,rising,threshold
+[07/50] latency=1167 us | freq=856.9 Hz | adc=86 | threshold=75
+CSV_ROW,7,ok,1167,856.898010,86,0,75,0,303,303,rising,threshold
+[08/50] latency=1095 us | freq=913.2 Hz | adc=76 | threshold=75
+CSV_ROW,8,ok,1095,913.242004,76,0,75,0,303,303,rising,threshold
+[09/50] latency=1160 us | freq=862.1 Hz | adc=89 | threshold=75
+CSV_ROW,9,ok,1160,862.068970,89,0,75,0,303,303,rising,threshold
+[10/50] latency=1106 us | freq=904.2 Hz | adc=77 | threshold=75
+CSV_ROW,10,ok,1106,904.159119,77,0,75,0,303,303,rising,threshold
+[11/50] latency=1167 us | freq=856.9 Hz | adc=83 | threshold=75
+CSV_ROW,11,ok,1167,856.898010,83,0,75,0,303,303,rising,threshold
+[12/50] latency=1095 us | freq=913.2 Hz | adc=78 | threshold=75
+CSV_ROW,12,ok,1095,913.242004,78,0,75,0,303,303,rising,threshold
+[13/50] latency=1160 us | freq=862.1 Hz | adc=80 | threshold=75
+CSV_ROW,13,ok,1160,862.068970,80,0,75,0,303,303,rising,threshold
+[14/50] latency=1175 us | freq=851.1 Hz | adc=87 | threshold=75
+CSV_ROW,14,ok,1175,851.063843,87,0,75,0,303,303,rising,threshold
+[15/50] latency=1167 us | freq=856.9 Hz | adc=84 | threshold=75
+CSV_ROW,15,ok,1167,856.898010,84,0,75,0,303,303,rising,threshold
+[16/50] latency=1170 us | freq=854.7 Hz | adc=80 | threshold=75
+CSV_ROW,16,ok,1170,854.700867,80,0,75,0,303,303,rising,threshold
+[17/50] latency=1168 us | freq=856.2 Hz | adc=82 | threshold=75
+CSV_ROW,17,ok,1168,856.164368,82,0,75,0,303,303,rising,threshold
+[18/50] latency=1099 us | freq=909.9 Hz | adc=78 | threshold=75
+CSV_ROW,18,ok,1099,909.918091,78,0,75,0,303,303,rising,threshold
+[19/50] latency=1167 us | freq=856.9 Hz | adc=87 | threshold=75
+CSV_ROW,19,ok,1167,856.898010,87,0,75,0,303,303,rising,threshold
+[20/50] latency=1171 us | freq=854.0 Hz | adc=92 | threshold=75
+CSV_ROW,20,ok,1171,853.970947,92,0,75,0,303,303,rising,threshold
+[21/50] latency=1167 us | freq=856.9 Hz | adc=87 | threshold=75
+CSV_ROW,21,ok,1167,856.898010,87,0,75,0,303,303,rising,threshold
+[22/50] latency=1172 us | freq=853.2 Hz | adc=83 | threshold=75
+CSV_ROW,22,ok,1172,853.242310,83,0,75,0,303,303,rising,threshold
+[23/50] latency=1167 us | freq=856.9 Hz | adc=82 | threshold=75
+CSV_ROW,23,ok,1167,856.898010,82,0,75,0,303,303,rising,threshold
+[24/50] latency=1096 us | freq=912.4 Hz | adc=76 | threshold=75
+CSV_ROW,24,ok,1096,912.408752,76,0,75,0,303,303,rising,threshold
+[25/50] latency=1085 us | freq=921.7 Hz | adc=80 | threshold=75
+CSV_ROW,25,ok,1085,921.658997,80,0,75,0,303,303,rising,threshold
+[26/50] latency=1175 us | freq=851.1 Hz | adc=84 | threshold=75
+CSV_ROW,26,ok,1175,851.063843,84,0,75,0,303,303,rising,threshold
+[27/50] latency=1098 us | freq=910.7 Hz | adc=75 | threshold=75
+CSV_ROW,27,ok,1098,910.746826,75,0,75,0,303,303,rising,threshold
+[28/50] latency=1167 us | freq=856.9 Hz | adc=83 | threshold=75
+CSV_ROW,28,ok,1167,856.898010,83,0,75,0,303,303,rising,threshold
+[29/50] latency=1091 us | freq=916.6 Hz | adc=93 | threshold=75
+CSV_ROW,29,ok,1091,916.590271,93,0,75,0,303,303,rising,threshold
+[30/50] latency=1099 us | freq=909.9 Hz | adc=77 | threshold=75
+CSV_ROW,30,ok,1099,909.918091,77,0,75,0,303,303,rising,threshold
+[31/50] latency=1167 us | freq=856.9 Hz | adc=86 | threshold=75
+CSV_ROW,31,ok,1167,856.898010,86,0,75,0,303,303,rising,threshold
+[32/50] latency=1095 us | freq=913.2 Hz | adc=75 | threshold=75
+CSV_ROW,32,ok,1095,913.242004,75,0,75,0,303,303,rising,threshold
+[33/50] latency=1159 us | freq=862.8 Hz | adc=93 | threshold=75
+CSV_ROW,33,ok,1159,862.812744,93,0,75,0,303,303,rising,threshold
+[34/50] latency=1178 us | freq=848.9 Hz | adc=86 | threshold=75
+CSV_ROW,34,ok,1178,848.896423,86,0,75,0,303,303,rising,threshold
+[35/50] latency=1167 us | freq=856.9 Hz | adc=86 | threshold=75
+CSV_ROW,35,ok,1167,856.898010,86,0,75,0,303,303,rising,threshold
+[36/50] latency=1096 us | freq=912.4 Hz | adc=75 | threshold=75
+CSV_ROW,36,ok,1096,912.408752,75,0,75,0,303,303,rising,threshold
+[37/50] latency=1085 us | freq=921.7 Hz | adc=75 | threshold=75
+CSV_ROW,37,ok,1085,921.658997,75,0,75,0,303,303,rising,threshold
+[38/50] latency=1100 us | freq=909.1 Hz | adc=75 | threshold=75
+CSV_ROW,38,ok,1100,909.090881,75,0,75,0,303,303,rising,threshold
+[39/50] latency=1163 us | freq=859.8 Hz | adc=87 | threshold=75
+CSV_ROW,39,ok,1163,859.845215,87,0,75,0,303,303,rising,threshold
+[40/50] latency=1175 us | freq=851.1 Hz | adc=92 | threshold=75
+CSV_ROW,40,ok,1175,851.063843,92,0,75,0,303,303,rising,threshold
+[41/50] latency=1098 us | freq=910.7 Hz | adc=79 | threshold=75
+CSV_ROW,41,ok,1098,910.746826,79,0,75,0,303,303,rising,threshold
+[42/50] latency=1092 us | freq=915.8 Hz | adc=75 | threshold=75
+CSV_ROW,42,ok,1092,915.750916,75,0,75,0,303,303,rising,threshold
+[43/50] latency=1092 us | freq=915.8 Hz | adc=75 | threshold=75
+CSV_ROW,43,ok,1092,915.750916,75,0,75,0,303,303,rising,threshold
+[44/50] latency=1100 us | freq=909.1 Hz | adc=80 | threshold=75
+CSV_ROW,44,ok,1100,909.090881,80,0,75,0,303,303,rising,threshold
+[45/50] latency=1088 us | freq=919.1 Hz | adc=78 | threshold=75
+CSV_ROW,45,ok,1088,919.117676,78,0,75,0,303,303,rising,threshold
+[46/50] latency=1099 us | freq=909.9 Hz | adc=80 | threshold=75
+CSV_ROW,46,ok,1099,909.918091,80,0,75,0,303,303,rising,threshold
+[47/50] latency=1092 us | freq=915.8 Hz | adc=81 | threshold=75
+CSV_ROW,47,ok,1092,915.750916,81,0,75,0,303,303,rising,threshold
+[48/50] latency=1102 us | freq=907.4 Hz | adc=79 | threshold=75
+CSV_ROW,48,ok,1102,907.441040,79,0,75,0,303,303,rising,threshold
+[49/50] latency=1084 us | freq=922.5 Hz | adc=83 | threshold=75
+CSV_ROW,49,ok,1084,922.509216,83,0,75,0,303,303,rising,threshold
+[50/50] latency=1092 us | freq=915.8 Hz | adc=81 | threshold=75
+CSV_ROW,50,ok,1092,915.750916,81,0,75,0,303,303,rising,threshold
+============================================================
+RESUMEN
+============================================================
+Dark level: 0
+Lit level: 303
+Contrast: 303
+Threshold: 75
+Trials OK: 50
+Trials failed: 0
+Latency min: 1084 us
+Latency max: 1178 us
+Latency avg: 1129.8 us
+Latency median: 1104.0 us
+Equivalent freq @ min latency: 922.5 Hz
+Equivalent freq @ avg latency: 885.1 Hz
+Equivalent freq @ median latency: 905.8 Hz
+Equivalent freq @ max latency: 848.9 Hz
+CSV_SUMMARY,1084,1178,1129.760010,1104.0,0,922.509216,885.143738,905.797119,848.896423
+MicroPython v1.22.2 on 2024-02-22; Generic ESP32 module with ESP32
+Type "help()" for more information.
+>>> 
