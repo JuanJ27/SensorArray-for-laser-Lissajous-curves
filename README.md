@@ -59,6 +59,8 @@ jupyter>=1.0.0
 
 2. **Configurar el entorno Python**
    ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
    pip install -r requirements.txt
    ```
 
@@ -100,6 +102,69 @@ jupyter>=1.0.0
    jupyter notebook notebooks/analisis_fototransistores.ipynb
    ```
 
+### Webcam USB con OpenCV
+
+Usa `tools/webcam_fps_tool.py` para probar una webcam USB sin mezclarla con las
+herramientas del ESP32. En Linux el script prefiere `CAP_V4L2` y pide `MJPG`,
+que suele entregar mejor FPS real que formatos sin compresión.
+
+Para el flujo minimo webcam + LED con deteccion de destellos, seguí la guía
+práctica en [`docs/webcam_led_flash_experiment.md`](docs/webcam_led_flash_experiment.md).
+Incluye cableado seguro, carga del firmware MicroPython, control PWM del LED y
+comandos exactos para medir destellos con la Logitech C525.
+
+Camino rápido para la Logitech HD Webcam C525:
+
+```bash
+source .venv/bin/activate
+python tools/webcam_fps_tool.py probe --list
+python tools/webcam_fps_tool.py probe --index 0 --width 640 --height 480 --fps 30 --fourcc MJPG --seconds 5
+python tools/webcam_fps_tool.py record --index 0 --width 640 --height 480 --fps 30 --fourcc MJPG --seconds 5
+```
+
+Agregá `--preview` si querés ver la imagen mientras se mide o graba:
+
+```bash
+python tools/webcam_fps_tool.py probe --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --seconds 10 --preview
+```
+
+Para medir el throughput real de la cámara sin pagar el costo de convertir cada
+frame a BGR dentro de OpenCV, usá `--raw`. En la C525 esto suele ser la prueba
+más honesta para saber si el USB/cámara está entregando 30 FPS:
+
+```bash
+python tools/webcam_fps_tool.py probe --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --seconds 5 --raw
+```
+
+Para comparar modos:
+
+```bash
+python tools/webcam_fps_tool.py probe --index 0 --width 320,640,1280 --height 240,480,720 --fps 30 --fourcc MJPG,YUYV --seconds 3
+```
+
+Si el FPS medido queda muy bajo, probá desactivar la exposición automática. En
+webcams UVC como la C525, poca luz puede hacer que la cámara alargue la
+exposición y entregue menos cuadros por segundo:
+
+```bash
+python tools/webcam_fps_tool.py probe --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --seconds 5 --raw --auto-exposure manual --exposure 10 --exposure-auto-priority 0
+```
+
+Notas prácticas:
+
+- Si `/dev/video0` no es la webcam correcta, cambiá `--index` por el índice que
+  aparece en `probe --list`.
+- El FPS pedido no garantiza el FPS real: mirá `actual_fps`, `actual_fourcc` y
+  `measured_fps` en la salida.
+- Si ya sabés el índice de la cámara, pasá `--index`; así el script no recorre
+  otros nodos `/dev/video*` y evita warnings innecesarios.
+- No fuerces `--buffer-size 1` cuando busques máximo FPS. En la C525 puede bajar
+  la medición a ~15 FPS. Usalo solo si estás optimizando latencia y aceptás ese
+  costo.
+- La C525 normalmente está limitada a alrededor de 30 FPS; bajar resolución o
+  usar `MJPG` puede mejorar la estabilidad, no superar límites físicos del modo.
+- Los clips se guardan por defecto en `data/webcam/`.
+
 ## Estructura del Proyecto
 
 ```
@@ -108,7 +173,8 @@ jupyter>=1.0.0
 ├── 📄 LICENSE                # Licencia del proyecto
 ├── 📄 requirements.txt       # Dependencias Python
 ├── 📁 tools/                 # Scripts de captura en PC
-│   └── 📄 capture_sensor_data.py
+│   ├── 📄 capture_sensor_data.py
+│   └── 📄 webcam_fps_tool.py
 ├── 📁 hardware/              # Código y firmware del hardware
 │   ├── 📄 sensor_array.py    # Muestreo periódico de 5 sensores
 │   ├── 📄 latency_test.py    # Medición de latencia con 1 sensor

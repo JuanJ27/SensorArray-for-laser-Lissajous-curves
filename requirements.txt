@@ -14,6 +14,9 @@ ipywidgets>=7.6.0
 scikit-learn>=1.0.0
 plotly>=5.0.0
 
+# Captura de video por webcam USB
+opencv-python>=4.13.0
+
 # Herramientas de desarrollo y documentación
 black>=21.0.0
 flake8>=3.9.0
