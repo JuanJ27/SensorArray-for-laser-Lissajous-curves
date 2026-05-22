@@ -1,0 +1,15 @@
+duty,detection_events,detected_frames,measured_fps,csv,led_ack
+8,3,17,29.86,data/webcam/webcam_flash_metrics_20260521_115322.csv,OK train count=3 duration_ms=200 duty=8 period_ms=700
+16,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115333.csv,OK train count=3 duration_ms=200 duty=16 period_ms=700
+24,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115343.csv,OK train count=3 duration_ms=200 duty=24 period_ms=700
+32,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115354.csv,OK train count=3 duration_ms=200 duty=32 period_ms=700
+48,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115404.csv,OK train count=3 duration_ms=200 duty=48 period_ms=700
+64,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115415.csv,OK train count=3 duration_ms=200 duty=64 period_ms=700
+96,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115425.csv,OK train count=3 duration_ms=200 duty=96 period_ms=700
+128,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115436.csv,OK train count=3 duration_ms=200 duty=128 period_ms=700
+192,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115446.csv,OK train count=3 duration_ms=200 duty=192 period_ms=700
+256,3,19,29.88,data/webcam/webcam_flash_metrics_20260521_115457.csv,OK train count=3 duration_ms=200 duty=256 period_ms=700
+384,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115507.csv,OK train count=3 duration_ms=200 duty=384 period_ms=700
+512,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115518.csv,OK train count=3 duration_ms=200 duty=512 period_ms=700
+768,3,18,29.88,data/webcam/webcam_flash_metrics_20260521_115528.csv,OK train count=3 duration_ms=200 duty=768 period_ms=700
+1023,3,19,29.88,data/webcam/webcam_flash_metrics_20260521_115539.csv,OK train count=3 duration_ms=200 duty=1023 period_ms=700

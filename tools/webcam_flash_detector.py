@@ -36,6 +36,7 @@ from webcam_fps_tool import (  # noqa: E402
 DEFAULT_BACKEND = cv2.CAP_V4L2 if platform.system() == "Linux" else cv2.CAP_ANY
 CSV_FIELDS = (
     "timestamp_s",
+    "perf_counter_s",
     "frame_index",
     "mean",
     "max",
@@ -178,6 +179,7 @@ def run_detection(args: argparse.Namespace) -> int:
     backend = DEFAULT_BACKEND if args.prefer_v4l2 else cv2.CAP_ANY
     output_path = Path(args.output) if args.output else default_csv_path(Path(args.output_dir))
     frames_dir = Path(args.frames_dir) if args.frames_dir else output_path.with_suffix("")
+    video_path = Path(args.video_output) if args.video_output else None
 
     try:
         apply_v4l2_controls(args.index, args)
@@ -219,6 +221,8 @@ def run_detection(args: argparse.Namespace) -> int:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if args.save_detected_frames:
             frames_dir.mkdir(parents=True, exist_ok=True)
+        if video_path is not None:
+            video_path.parent.mkdir(parents=True, exist_ok=True)
 
         detections = 0
         detection_events = 0
@@ -228,6 +232,7 @@ def run_detection(args: argparse.Namespace) -> int:
         started = time.perf_counter()
         deadline = started + args.seconds
         last_status = started
+        writer_video: cv2.VideoWriter | None = None
 
         print(
             "Actual capture: "
@@ -248,6 +253,20 @@ def run_detection(args: argparse.Namespace) -> int:
                     continue
 
                 now = time.perf_counter()
+                display_frame = frame_for_display(frame, args.fourcc, args.raw)
+                if writer_video is None and video_path is not None:
+                    height, width = display_frame.shape[:2]
+                    writer_video = cv2.VideoWriter(
+                        str(video_path),
+                        cv2.VideoWriter_fourcc(*"MJPG"),
+                        float(props["fps"] or args.fps or 30),
+                        (width, height),
+                    )
+                    if not writer_video.isOpened():
+                        raise RuntimeError(f"Could not open webcam video output: {video_path}")
+                if writer_video is not None:
+                    writer_video.write(display_frame)
+
                 gray = crop_roi(luma_frame(frame, args.fourcc, args.raw), roi)
                 metrics = compute_metrics(gray)
                 current_metric = metric_value(metrics, args.metric)
@@ -264,6 +283,7 @@ def run_detection(args: argparse.Namespace) -> int:
                 frame_index = frames
                 row = {
                     "timestamp_s": now - started,
+                    "perf_counter_s": now,
                     "frame_index": frame_index,
                     "mean": metrics["mean"],
                     "max": metrics["max"],
@@ -277,11 +297,9 @@ def run_detection(args: argparse.Namespace) -> int:
                     rows.popleft()
 
                 if detected and args.save_detected_frames:
-                    display_frame = frame_for_display(frame, args.fourcc, args.raw)
                     cv2.imwrite(str(frames_dir / f"flash_{frame_index:06d}.png"), display_frame)
 
                 if args.preview:
-                    display_frame = frame_for_display(frame, args.fourcc, args.raw)
                     overlay = draw_overlay(
                         display_frame,
                         roi,
@@ -296,6 +314,7 @@ def run_detection(args: argparse.Namespace) -> int:
 
                 frames += 1
                 if now - last_status >= args.status_interval:
+                    csv_file.flush()
                     elapsed = now - started
                     fps = frames / elapsed if elapsed else 0.0
                     print(
@@ -304,6 +323,8 @@ def run_detection(args: argparse.Namespace) -> int:
                         f"events={detection_events}"
                     )
                     last_status = now
+
+            csv_file.flush()
 
         elapsed = time.perf_counter() - started
         measured_fps = frames / elapsed if elapsed else 0.0
@@ -315,8 +336,12 @@ def run_detection(args: argparse.Namespace) -> int:
         print(f"  CSV: {output_path}")
         if args.save_detected_frames:
             print(f"  Detected frames directory: {frames_dir}")
+        if video_path is not None:
+            print(f"  Video: {video_path}")
         return 0
     finally:
+        if 'writer_video' in locals() and writer_video is not None:
+            writer_video.release()
         capture.release()
         if args.preview or args.select_roi:
             cv2.destroyAllWindows()
@@ -404,6 +429,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         help="Save PNG frames where the detector crosses threshold",
     )
     parser.add_argument("--frames-dir", help="Directory for detected PNG frames")
+    parser.add_argument("--video-output", help="Optional MJPG AVI path for the full webcam run")
     parser.add_argument(
         "--status-interval", type=float, default=1.0, help="Live status period in seconds"
     )

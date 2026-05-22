@@ -1,0 +1,25 @@
+field,value
+mode,random-train
+webcam.frames,780
+webcam.detected_frames,0
+webcam.detection_events,0
+op598.baseline_adc,0.0
+op598.command,sensor random_train_profile 10 1800 2100 40 1023 40 120 1000
+op598.fall_time_ms,0.0
+op598.metadata.count,10
+op598.metadata.duration_ms,40
+op598.metadata.duty,1023
+op598.metadata.max_period_ms,2100
+op598.metadata.min_period_ms,1800
+op598.metadata.post_ms,120
+op598.metadata.pre_ms,40
+op598.metadata.sample_us,1000
+op598.metadata.samples,2862
+op598.peak_adc,0.0
+op598.peak_time_ms,0.111
+op598.pulse_count,10
+op598.pulse_width_ms,0.0
+op598.rise_time_ms,0.0
+op598.sample_count,2862
+op598.threshold_adc,0.0
+op598.threshold_crossing_ms,0.111

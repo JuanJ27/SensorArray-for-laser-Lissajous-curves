@@ -133,8 +133,195 @@ Comandos que entiende el firmware por serial:
 | `off` | `off` | Apaga el LED. |
 | `boardled off` | `boardled off` | Apaga el LED integrado azul conocido en `GPIO 2` escribiendo valor `0`. |
 | `status` | `status` | Imprime estado machine-readable. |
+| `sensor status` | `sensor status` | Estado del OP598 en `ADC36`, canal `verde`. |
+| `sensor sample <count> <delay>` | `sensor sample 200 1ms` | Muestra el ADC sin disparar perfiles. |
+| `sensor pulse_profile ...` | `sensor pulse_profile 40 1023 40 120 1000` | Baseline + pulso + cola con stream ADC parseable. |
+| `sensor train_profile ...` | `sensor train_profile 5 1000 40 1023 40 120 1000` | Tren fijo con stream ADC parseable. |
+| `sensor random_train_profile ...` | `sensor random_train_profile 30 1800 2100 40 1023 40 120 1000` | Tren aleatorio para metodología estadística. |
 
 Las respuestas tienen formato como `OK pulse duration_ms=100 duty=800` o `ERR message=...`.
+Los perfiles con sensor emiten además líneas `SENSOR_HEADER ...` y `SENSOR_ROW ...`
+con `index`, `t_us`, `adc`, `led`, `phase` y `pulse_index`.
+
+## Canal numerico OP598 en ADC36
+
+El montaje nuevo deja al OP598 ya conectado en el canal `verde` sobre `ADC36`.
+Ese canal NO reemplaza un osciloscopio, pero sí permite una estimación mucho más
+útil que la webcam para ver si la cadena `LED + circuito + sensor + ESP32`
+detecta y separa pulsos cortos.
+
+Qué mide este canal:
+
+- Respuesta práctica del sistema iluminado sobre el sensor.
+- Nivel baseline, pico, cruce de umbral y ancho detectable del pulso.
+- Separación aproximada entre pulsos en trenes repetidos.
+
+Qué NO puede afirmar:
+
+- No es metrología de nanosegundos.
+- No aísla la respuesta física pura del OP598.
+- `sample_us` es aproximado en MicroPython; `adc.read()` y `print()` agregan latencia y jitter.
+
+## Captura OP598 desde la PC
+
+Estado y baseline simple:
+
+```bash
+python tools/capture_op598_response.py --port /dev/ttyUSB0 status
+python tools/capture_op598_response.py --port /dev/ttyUSB0 sample --sample-count 200 --sample-delay 1 --sample-unit ms
+```
+
+Pulso único con plot guardado:
+
+```bash
+python tools/capture_op598_response.py \
+  --port /dev/ttyUSB0 \
+  --live-plot \
+  pulse --duration-ms 40 --duty 1023 --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+Tren fijo:
+
+```bash
+python tools/capture_op598_response.py \
+  --port /dev/ttyUSB0 \
+  train --count 5 --period-ms 1000 --duration-ms 40 --duty 1023 \
+  --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+Tren aleatorio `1.8-2.1 s`:
+
+```bash
+python tools/capture_op598_response.py \
+  --port /dev/ttyUSB0 \
+  random-train --count 30 --min-period-ms 1800 --max-period-ms 2100 \
+  --duration-ms 40 --duty 1023 --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+La herramienta guarda por corrida:
+
+- CSV con muestras ADC y estado LED en `data/op598/`
+- Resumen CSV y Markdown con baseline, pico, cruce de umbral, rise/fall y ancho de pulso
+- PNG para presentación
+- Plot en vivo si hay display gráfico disponible; si no, hace fallback a guardado + texto
+
+## Runner dual webcam + OP598
+
+Pulso único:
+
+```bash
+python tools/run_dual_flash_experiment.py \
+  --port /dev/ttyUSB0 \
+  --index 2 \
+  --raw \
+  --preview \
+  --save-detected-frames \
+  --auto-exposure manual --exposure 10 --exposure-auto-priority 0 \
+  pulse --duration-ms 40 --duty 1023 --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+Tren repetido:
+
+```bash
+python tools/run_dual_flash_experiment.py \
+  --port /dev/ttyUSB0 \
+  --index 2 \
+  --raw \
+  --auto-exposure manual --exposure 10 --exposure-auto-priority 0 \
+  train --count 10 --period-ms 1000 --duration-ms 40 --duty 1023 \
+  --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+Método estadístico de coincidencia con intervalos aleatorios oscuros:
+
+```bash
+python tools/run_dual_flash_experiment.py \
+  --port /dev/ttyUSB0 \
+  --index 2 \
+  --raw \
+  --auto-exposure manual --exposure 10 --exposure-auto-priority 0 \
+  random-train --count 30 --min-period-ms 1800 --max-period-ms 2100 \
+  --duration-ms 40 --duty 1023 --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+Salida del runner dual:
+
+- `webcam_metrics.csv`
+- `webcam_capture.avi` con la corrida completa de la webcam
+- `webcam_frames/` con frames detectados representativos
+- carpeta `op598/` con CSV, resumen y plots del canal numerico
+- `pulse_events.csv` con anclas y amplitud por pulso derivadas del OP598
+- `coincidence_table.csv` con el join `OP598 -> webcam` por ventana temporal
+- `visuals/` con `average_frame.png`, `coincidence_heatmap.png`, `pulse_strip.png`
+- `manifest.json` con metadata y ubicacion de artefactos
+- `dual_summary.csv`
+- `dual_summary.md`
+
+Interpretación útil para reconstrucción estadística:
+
+- `pulse_index` y `t_us` del OP598 dan la referencia numérica más confiable de cada disparo dentro de este montaje.
+- El CSV webcam permite revisar `before/during/after` por frame y contar coincidencias visuales.
+- Si el OP598 detecta pulsos que la webcam no ve, eso NO invalida el experimento: justamente muestra la diferencia entre un canal óptico rápido aproximado y uno visual lento.
+- `coincidence_table.csv` es la tabla práctica para presentación: dice qué frame quedó más cerca de cada pulso y si cayó una detección dentro de la ventana elegida.
+
+## Fase dual estadistica actual
+
+Esta fase NO intenta filmar el flash "en tiempo real" como si la webcam fuera rápida.
+Lo que hace es otra cosa, y es importante entenderlo bien:
+
+- OP598 en `ADC36` da un ancla temporal gruesa por pulso.
+- La webcam a `~30 FPS` aporta coincidencia visual por frame.
+- Los intervalos aleatorios `1800-2100 ms` evitan phase lock simple con la cámara.
+- La reconstrucción sale de repetir pulsos y acumular evidencia, no de un frame mágico.
+
+Límite actual del canal OP598 bajo esta ruta MicroPython:
+
+- Cadencia real de muestreo: aproximadamente `6.4-6.6 ms` aunque se pida `1000 us`.
+- Eso alcanza para anclar pulsos cortos y separar eventos repetidos.
+- NO alcanza para reclamar timing fino sub-milisegundo.
+
+Matriz recomendada para correr ahora en este montaje:
+
+```bash
+python tools/run_dual_flash_experiment.py \
+  --output-dir data/dual_experiments/phase2_statistical_reconstruction_matrix \
+  --port /dev/ttyUSB0 \
+  --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --raw \
+  --save-detected-frames \
+  --auto-exposure manual --exposure 20 --exposure-auto-priority 0 \
+  --metric max --threshold-delta 4 --sigma-multiplier 1.0 \
+  --coincidence-window-ms 100 \
+  random-train --count 10 --min-period-ms 1800 --max-period-ms 2100 \
+  --duration-ms 40 --duty 32 --pre-ms 40 --post-ms 120 --sample-us 1000
+
+python tools/run_dual_flash_experiment.py \
+  --output-dir data/dual_experiments/phase2_statistical_reconstruction_matrix \
+  --port /dev/ttyUSB0 \
+  --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --raw \
+  --save-detected-frames \
+  --auto-exposure manual --exposure 20 --exposure-auto-priority 0 \
+  --metric max --threshold-delta 4 --sigma-multiplier 1.0 \
+  --coincidence-window-ms 100 \
+  random-train --count 10 --min-period-ms 1800 --max-period-ms 2100 \
+  --duration-ms 40 --duty 8 --pre-ms 40 --post-ms 120 --sample-us 1000
+
+python tools/run_dual_flash_experiment.py \
+  --output-dir data/dual_experiments/phase2_statistical_reconstruction_matrix \
+  --port /dev/ttyUSB0 \
+  --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --raw \
+  --save-detected-frames \
+  --auto-exposure manual --exposure 20 --exposure-auto-priority 0 \
+  --metric max --threshold-delta 4 --sigma-multiplier 1.0 \
+  --coincidence-window-ms 100 \
+  random-train --count 10 --min-period-ms 1800 --max-period-ms 2100 \
+  --duration-ms 20 --duty 32 --pre-ms 40 --post-ms 120 --sample-us 1000
+```
+
+Lectura honesta de estos settings:
+
+- Son útiles para coincidencia estadística, NO para detección frame-perfect limpia.
+- `exposure=20` y `threshold-delta=4` rescatan coincidencias visuales en la zona útil del OP598, pero agregan falsos positivos.
+- Justamente por eso la ventana alrededor del ancla OP598 es parte del método, no un parche cosmético.
 
 ## Probar LED desde la PC
 

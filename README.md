@@ -92,10 +92,16 @@ jupyter>=1.0.0
    ```
 
 2. **Ejecutar caracterizacion temporal**
-   - `latency_test.py` mide la latencia practica del sistema con un LED en `GPIO 17`
-   - El sensor objetivo por defecto es el verde en `GPIO 36`
-   - La medicion usa ADC con umbral calibrado y polling intensivo
-   - El resultado representa latencia de deteccion en MicroPython, no la respuesta intrinseca aislada del OP598
+    - `latency_test.py` mide la latencia practica del sistema con un LED en `GPIO 17`
+    - El sensor objetivo por defecto es el verde en `GPIO 36`
+    - La medicion usa ADC con umbral calibrado y polling intensivo
+    - El resultado representa latencia de deteccion en MicroPython, no la respuesta intrinseca aislada del OP598
+
+3. **Ejecutar flujo dual OP598 + webcam**
+    - `hardware/led_pulse_controller.py` ahora controla el LED en `GPIO 17` y captura el OP598 montado en `verde`, `ADC36`
+    - `tools/capture_op598_response.py` guarda CSV, resumen y plots del canal numerico
+    - `tools/run_dual_flash_experiment.py` coordina canal numerico + webcam C525 en indice `2`
+    - Este flujo estima detectabilidad y tiempos practicos del sistema `LED + circuito + OP598 + ESP32`, no metrologia ultrarrapida de laboratorio
 
 3. **Análisis de datos**
    ```bash
@@ -112,6 +118,11 @@ Para el flujo minimo webcam + LED con deteccion de destellos, seguí la guía
 práctica en [`docs/webcam_led_flash_experiment.md`](docs/webcam_led_flash_experiment.md).
 Incluye cableado seguro, carga del firmware MicroPython, control PWM del LED y
 comandos exactos para medir destellos con la Logitech C525.
+
+Para el flujo dual con el OP598 conectado al canal `verde` en `ADC36`, usá la
+nueva sección de la misma guía. Ese canal numérico es bastante más útil que la
+webcam para separar pulsos cortos, pero sigue estando limitado por el ADC y el
+overhead de MicroPython.
 
 Camino rápido para la Logitech HD Webcam C525:
 
@@ -225,6 +236,30 @@ detectar el cruce de umbral.
 Esta prueba sirve para caracterizar la latencia practica de la cadena completa
 en ESP32 con MicroPython. No debe interpretarse como una medicion aislada de la
 respuesta fisica del fototransistor.
+
+## Canal OP598 en ADC36
+
+El montaje actual agrega un uso específico del sensor `verde`:
+
+- `GPIO 17`: LED externo experimental
+- `GPIO 36`: salida analógica del OP598 conectado a `verde`
+- `GPIO 2`: LED onboard mantenido en comportamiento seguro; el firmware solo usa `boardled off`
+- Webcam Logitech C525: `OpenCV --index 2`
+
+Comandos de firmware disponibles para este flujo:
+
+```bash
+python tools/led_serial_control.py --port /dev/ttyUSB0 sensor status
+python tools/capture_op598_response.py --port /dev/ttyUSB0 sample --sample-count 200 --sample-delay 1 --sample-unit ms
+python tools/capture_op598_response.py --port /dev/ttyUSB0 pulse --duration-ms 40 --duty 1023 --pre-ms 40 --post-ms 120 --sample-us 1000
+python tools/run_dual_flash_experiment.py --port /dev/ttyUSB0 --index 2 --raw --auto-exposure manual --exposure 10 pulse --duration-ms 40 --duty 1023
+```
+
+Interpretación correcta:
+
+- El canal OP598 mide la respuesta práctica del sistema óptico y electrónico, no la física intrínseca de eventos nanosegundo a nanosegundo.
+- El `sample_us` del firmware es un pedido aproximado. En MicroPython, el tiempo real queda afectado por `adc.read()`, `print()` y el intérprete.
+- La webcam sigue siendo un canal lento, útil para evidencia visual, ventanas estadísticas y coincidencia a nivel frame.
 
 ## Resultados
 

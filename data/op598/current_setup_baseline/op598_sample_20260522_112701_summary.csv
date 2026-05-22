@@ -1,0 +1,14 @@
+field,value
+command,sensor sample 200 1ms
+metadata.count,200
+metadata.delay_us,1000
+baseline_adc,0.0
+fall_time_ms,0.0
+peak_adc,0.0
+peak_time_ms,0.023
+pulse_count,0
+pulse_width_ms,0.0
+rise_time_ms,0.0
+sample_count,200
+threshold_adc,0.0
+threshold_crossing_ms,0.023

@@ -1,0 +1,21 @@
+field,value
+command,sensor pulse_profile 200 8 80 120 1000
+metadata.duration_ms,200
+metadata.duty,8
+metadata.post_ms,120
+metadata.pre_ms,80
+metadata.sample_us,1000
+metadata.samples,62
+baseline_adc,2980.846153846154
+fall_time_ms,83.99099999999999
+peak_adc,3307.0
+peak_time_ms,196.617
+pulse_count,1
+pulse_width_ms,140.063
+rise_time_ms,96.503
+sample_count,62
+sample_interval_avg_ms,6.559803278688525
+sample_interval_max_ms,12.74799999999999
+sample_interval_min_ms,3.627999999999986
+threshold_adc,3143.923076923077
+threshold_crossing_ms,80.311

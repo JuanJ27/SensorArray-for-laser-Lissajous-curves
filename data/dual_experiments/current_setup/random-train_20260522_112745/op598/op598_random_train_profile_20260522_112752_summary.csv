@@ -1,0 +1,21 @@
+field,value
+command,sensor random_train_profile 10 1800 2100 40 1023 40 120 1000
+metadata.count,10
+metadata.duration_ms,40
+metadata.duty,1023
+metadata.max_period_ms,2100
+metadata.min_period_ms,1800
+metadata.post_ms,120
+metadata.pre_ms,40
+metadata.sample_us,1000
+metadata.samples,2862
+baseline_adc,0.0
+fall_time_ms,0.0
+peak_adc,0.0
+peak_time_ms,0.111
+pulse_count,10
+pulse_width_ms,0.0
+rise_time_ms,0.0
+sample_count,2862
+threshold_adc,0.0
+threshold_crossing_ms,0.111
