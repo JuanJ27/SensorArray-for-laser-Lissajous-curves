@@ -1,0 +1,6 @@
+duty,replicates,mean_peak_adc,mean_peak_minus_baseline,all_saturated,any_saturated
+8,1,3307.0,326.153846,false,false
+32,1,3915.0,935.923077,false,false
+128,1,4095.0,1177.0,true,true
+512,1,4095.0,1234.846154,true,true
+1023,1,4095.0,1182.307692,true,true

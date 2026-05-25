@@ -1,0 +1,7 @@
+run_id,threshold_delta_fraction,covered_pulses,retained_matches,retained_rate
+random-train_20260522_172025,0.1,10,10,1.0
+random-train_20260522_172025,0.2,10,10,1.0
+random-train_20260522_163706,0.1,10,10,1.0
+random-train_20260522_163706,0.2,10,10,1.0
+random-train_20260522_162947,0.1,10,10,1.0
+random-train_20260522_162947,0.2,10,10,1.0

@@ -323,6 +323,38 @@ Lectura honesta de estos settings:
 - `exposure=20` y `threshold-delta=4` rescatan coincidencias visuales en la zona útil del OP598, pero agregan falsos positivos.
 - Justamente por eso la ventana alrededor del ancla OP598 es parte del método, no un parche cosmético.
 
+## Reconstruccion offline para presentacion
+
+Cuando ya existen corridas duales guardadas, se puede construir un slice de reconstruccion completamente offline:
+
+```bash
+python scripts/build_statistical_reconstruction.py
+```
+
+Salida esperada en `data/derived/reconstruction/`:
+
+- `best_dual_run_selection.csv`: ranking de corridas candidatas y cuáles se eligen para reconstrucción.
+- `avg_flash_frame.png`: promedio de frames emparejados de las mejores corridas.
+- `flash_heatmap.png`: acumulación visual `matched - before` para remarcar dónde aparece energía luminosa repetida.
+- `pulse_strips/*.png`: tiras before/during/after de varios pulsos emparejados.
+- `slowmo_frames/*.png`: promedios por fase relativa alrededor del frame emparejado.
+- `slowmo_reconstruction.gif`: slow motion sintético construido con esos promedios relativos.
+- `reconstruction_overview.md`: explicación de selección, supuestos y límites.
+
+Interpretación correcta de esta reconstrucción:
+
+- NO es filmación de alta velocidad del evento.
+- SÍ es una proxy visual honesta basada en apilar muchas coincidencias buenas.
+- El frame relativo `0` es el frame webcam ya emparejado por `coincidence_table.csv`.
+- El GIF ordena fases relativas (`-2`, `-1`, `0`, `+1`, `+2`) promedio; no representa una única secuencia cruda de un solo destello.
+
+Si además se quiere actualizar el material de presentación:
+
+```bash
+python scripts/generate_flash_detection_presentation_notebook.py
+jupyter nbconvert --to notebook --execute --inplace notebooks/flash_detection_presentation_analysis.ipynb
+```
+
 ## Probar LED desde la PC
 
 ```bash

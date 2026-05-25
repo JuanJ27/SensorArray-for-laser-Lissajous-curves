@@ -108,6 +108,17 @@ jupyter>=1.0.0
    jupyter notebook notebooks/analisis_fototransistores.ipynb
    ```
 
+4. **Resúmenes offline de estudios**
+   - Para reconstruir la capa derivada de agregación científica sin hardware:
+   ```bash
+   python3 scripts/build_run_catalog.py
+   python3 scripts/normalize_legacy_runs.py
+   python3 scripts/build_study_summaries.py
+   ```
+   - Salidas principales:
+   - `data/derived/studies/`: tablas CSV agregadas por estudio y condición.
+   - `data/derived/presentation/`: resúmenes Markdown en español y plots PNG cuando el entorno tiene `matplotlib`.
+
 ### Webcam USB con OpenCV
 
 Usa `tools/webcam_fps_tool.py` para probar una webcam USB sin mezclarla con las

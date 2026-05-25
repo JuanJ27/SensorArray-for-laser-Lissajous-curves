@@ -1,0 +1,164 @@
+run_id,family,variant,status,mode,created_at,pulse_count,webcam_frames,webcam_detected_frames,webcam_detection_events,op598_sample_count,op598_peak_adc,latency_avg_us,latency_failures,notes
+random-train_20260522_112745,dual_experiments,current_setup,partial,random-train,20260522_112745,10,780,0,0,2862,0.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+train_20260522_112902,dual_experiments,current_setup,partial,train,20260522_112902,5,335,7,5,686,0.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_113049,dual_experiments,current_setup_fixed,partial,random-train,20260522_113049,10,780,13,10,2809,0.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+train_20260522_113033,dual_experiments,current_setup_fixed,partial,train,20260522_113033,5,335,6,5,686,0.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_154927,dual_experiments,phase2_statistical_reconstruction,valid,random-train,20260522_154927,10,785,0,0,2683,3793.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_155022,dual_experiments,phase2_statistical_reconstruction,valid,random-train,2026-05-22T15:50:53,10,785,0,0,2628,3949.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_155311,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T15:53:42,10,785,161,116,2687,3867.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_155351,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T15:54:22,10,785,77,61,2614,3293.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_155431,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T15:55:02,10,785,0,0,2676,3809.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_162539,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T16:29:42,120,904,36,34,33417,3945.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_162947,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T16:30:18,10,780,25,21,2674,3857.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_163706,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T16:37:37,10,780,23,18,2716,3905.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_172025,dual_experiments,phase2_statistical_reconstruction_matrix,valid,random-train,2026-05-22T17:20:56,10,780,16,15,2701,3941.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_155151,dual_experiments,phase2_statistical_reconstruction_probe,valid,random-train,2026-05-22T15:52:11,5,470,11,11,1212,3865.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+random-train_20260522_155230,dual_experiments,phase2_statistical_reconstruction_probe,valid,random-train,2026-05-22T15:52:50,5,470,94,65,1229,3873.0,,,Resumen normalizado desde dual_summary.csv y manifest.json
+destello_latency_results_20260430_174041,latency_runs,.,valid,latency,20260430_174041,,,,,,,,5,Resumen opcional de latencia
+destello_latency_results_20260430_174118,latency_runs,.,valid,latency,20260430_174118,,,,,,,,5,Resumen opcional de latencia
+destello_latency_results_20260430_174211,latency_runs,.,valid,latency,20260430_174211,,,,,,,248.200000,0,Resumen opcional de latencia
+latency_results_20260430_121104,latency_runs,.,valid,latency,20260430_121104,,,,,,,675.580017,0,Resumen opcional de latencia
+latency_results_20260430_122215,latency_runs,.,invalid_empty,latency,20260430_122215,,,,,,,,,Resumen opcional de latencia
+latency_results_20260430_122246,latency_runs,.,invalid_empty,latency,20260430_122246,,,,,,,,,Resumen opcional de latencia
+latency_results_20260430_122511,latency_runs,.,valid,latency,20260430_122511,,,,,,,1069.959961,0,Resumen opcional de latencia
+latency_results_20260430_122532,latency_runs,.,valid,latency,20260430_122532,,,,,,,1129.760010,0,Resumen opcional de latencia
+latency_results_20260430_122545,latency_runs,.,invalid_empty,latency,20260430_122545,,,,,,,1185.479980,0,Resumen opcional de latencia
+latency_results_20260430_122707,latency_runs,.,invalid_empty,latency,20260430_122707,,,,,,,1832.459961,0,Resumen opcional de latencia
+latency_results_20260430_122843,latency_runs,.,invalid_empty,latency,20260430_122843,,,,,,,1945.160034,0,Resumen opcional de latencia
+latency_results_20260430_122907,latency_runs,.,invalid_empty,latency,20260430_122907,,,,,,,1819.819946,0,Resumen opcional de latencia
+latency_results_20260430_122919,latency_runs,.,invalid_empty,latency,20260430_122919,,,,,,,1945.420044,0,Resumen opcional de latencia
+latency_results_20260430_122932,latency_runs,.,invalid_empty,latency,20260430_122932,,,,,,,1974.760010,0,Resumen opcional de latencia
+latency_results_20260430_162158,latency_runs,.,invalid_empty,latency,20260430_162158,,,,,,,,0,Resumen opcional de latencia
+latency_results_20260430_170139,latency_runs,.,invalid_empty,latency,20260430_170139,,,,,,,,0,Resumen opcional de latencia
+latency_results_20260430_170425,latency_runs,.,invalid_empty,latency,20260430_170425,,,,,,,,0,Resumen opcional de latencia
+latency_results_20260430_170905,latency_runs,.,invalid_empty,latency,20260430_170905,,,,,,,,0,Resumen opcional de latencia
+latency_results_20260430_171805,latency_runs,.,valid,latency,20260430_171805,,,,,,,731.240000,0,Resumen opcional de latencia
+latency_results_20260430_172251,latency_runs,.,valid,latency,20260430_172251,,,,,,,2876.686275,0,Resumen opcional de latencia
+latency_results_20260430_172351,latency_runs,.,valid,latency,20260430_172351,,,,,,,2684.860000,0,Resumen opcional de latencia
+latency_results_20260430_172434,latency_runs,.,valid,latency,20260430_172434,,,,,,,223.900000,0,Resumen opcional de latencia
+op598_characterization_20260522_1524,op598,.,legacy_unstructured,,20260522,,,,,,,,,Documento heredado fuera del modelo tabular
+op598_pulse_profile_20260522_120124,op598,.,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_120124,1,,,,110,665.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_120305,op598,.,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_120305,1,,,,111,694.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_120327,op598,.,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_120327,1,,,,109,701.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_120520,op598,.,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_120520,1,,,,111,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_120527,op598,.,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_120527,1,,,,111,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152355,op598,.,valid,sensor pulse_profile 400 1023 80 150 1000,20260522_152355,1,,,,98,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152358,op598,.,valid,sensor pulse_profile 100 1023 80 120 1000,20260522_152358,1,,,,47,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152400,op598,.,valid,sensor pulse_profile 30 1023 80 120 1000,20260522_152400,1,,,,37,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152402,op598,.,valid,sensor pulse_profile 200 1023 80 120 1000,20260522_152402,1,,,,63,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152404,op598,.,valid,sensor pulse_profile 200 512 80 120 1000,20260522_152404,1,,,,62,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152407,op598,.,valid,sensor pulse_profile 200 128 80 120 1000,20260522_152407,1,,,,62,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152409,op598,.,valid,sensor pulse_profile 200 32 80 120 1000,20260522_152409,1,,,,62,3915.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_152412,op598,.,valid,sensor pulse_profile 200 8 80 120 1000,20260522_152412,1,,,,62,3307.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_170404,op598,.,valid,sensor pulse_profile 1000 1023 100 100 5000,20260522_170404,1,,,,184,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_134415,op598,.,valid,sensor sample 200 1ms,20260522_134415,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_134817,op598,.,valid,sensor sample 200 1ms,20260522_134817,0,,,,200,773.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_135113,op598,.,valid,sensor sample 200 1ms,20260522_135113,0,,,,200,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_140920,op598,.,valid,sensor sample 200 1ms,20260522_140920,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_140948,op598,.,valid,sensor sample 200 1ms,20260522_140948,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_140955,op598,.,valid,sensor sample 200 1ms,20260522_140955,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_141002,op598,.,valid,sensor sample 200 1ms,20260522_141002,0,,,,200,128.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_141012,op598,.,valid,sensor sample 200 1ms,20260522_141012,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_141033,op598,.,valid,sensor sample 200 1ms,20260522_141033,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_141038,op598,.,valid,sensor sample 200 1ms,20260522_141038,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_151705,op598,.,valid,sensor sample 200 1ms,20260522_151705,0,,,,200,3131.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_151718,op598,.,valid,sensor sample 200 1ms,20260522_151718,0,,,,200,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_151725,op598,.,valid,sensor sample 200 1ms,20260522_151725,0,,,,200,3182.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_152308,op598,.,legacy_unstructured,sample_20260522,20260522_152308,,,,,,,,,Artefacto OP598 sin pareja tabular reproducible
+op598_sample_20260522_152335,op598,.,valid,sensor sample 200 5ms,20260522_152335,0,,,,200,3141.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_status_20260522_152328,op598,.,legacy_unstructured,status_20260522,20260522_152328,,,,,,,,,Artefacto OP598 sin pareja tabular reproducible
+op598_status_20260522_154900,op598,.,legacy_unstructured,status_20260522,20260522_154900,,,,,,,,,Artefacto OP598 sin pareja tabular reproducible
+op598_status_20260522_170242,op598,.,legacy_unstructured,status_20260522,20260522_170242,,,,,,,,,Artefacto OP598 sin pareja tabular reproducible
+op598_train_profile_20260522_152414,op598,.,valid,sensor train_profile 6 120 30 1023 80 150 1000,20260522_152414,6,,,,136,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_train_profile_20260522_170407,op598,.,valid,sensor train_profile 3 1000 500 1023 100 100 5000,20260522_170407,3,,,,408,4095.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_112701,op598,current_setup_baseline,valid,sensor sample 200 1ms,20260522_112701,0,,,,200,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_sample_20260522_113014,op598,current_setup_baseline_fixed,valid,sensor sample 200 1ms,20260522_113014,0,,,,194,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_112747,op598,current_setup_signal,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_112747,1,,,,115,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+op598_pulse_profile_20260522_113030,op598,current_setup_signal_fixed,valid,sensor pulse_profile 500 1023 100 100 2000,20260522_113030,1,,,,116,0.0,,,Captura OP598 con artefactos agrupados por prefijo temporal
+flash_parameter_low_duty_20260521,webcam,.,valid,legacy-sweep,20260521,,,59,26,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+flash_parameter_sweep_20260521_114453,webcam,.,valid,legacy-sweep,20260521_114453,,,51,25,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+led_intensity_low_sweep_20260521,webcam,.,valid,legacy-sweep,20260521,,,122,21,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+led_intensity_sweep_20260521_114216,webcam,.,valid,legacy-sweep,20260521_114216,,,253,42,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+led_intensity_sweep_20260521_115322,webcam,.,valid,legacy-sweep,20260521_115322,,,253,42,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+threshold_delta_20_duty6_20260521,webcam,.,valid,legacy-sweep,20260521,,,18,3,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+threshold_delta_40_duty6_20260521,webcam,.,valid,legacy-sweep,20260521,,,0,0,,,,,Sweep webcam heredado normalizado por enlaces a CSVs de metricas
+webcam_flash_metrics_20260519_143350,webcam,.,valid,flash-metrics,20260519_143350,,76,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260519_143409,webcam,.,valid,flash-metrics,20260519_143409,,150,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260519_143552,webcam,.,valid,flash-metrics,20260519_143552,,120,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_110256,webcam,.,valid,flash-metrics,20260521_110256,,299,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_110344,webcam,.,valid,flash-metrics,20260521_110344,,359,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_110557,webcam,.,valid,flash-metrics,20260521_110557,,359,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_110729,webcam,.,valid,flash-metrics,20260521_110729,,359,45,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_111641,webcam,.,valid,flash-metrics,20260521_111641,,359,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_111816,webcam,.,valid,flash-metrics,20260521_111816,,359,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_111857,webcam,.,valid,flash-metrics,20260521_111857,,359,45,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_112211,webcam,.,valid,flash-metrics,20260521_112211,,359,45,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114151,webcam,.,valid,flash-metrics,20260521_114151,,359,46,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114216,webcam,.,valid,flash-metrics,20260521_114216,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114227,webcam,.,valid,flash-metrics,20260521_114227,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114238,webcam,.,valid,flash-metrics,20260521_114238,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114248,webcam,.,valid,flash-metrics,20260521_114248,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114258,webcam,.,valid,flash-metrics,20260521_114258,,210,19,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114309,webcam,.,valid,flash-metrics,20260521_114309,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114319,webcam,.,valid,flash-metrics,20260521_114319,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114330,webcam,.,valid,flash-metrics,20260521_114330,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114340,webcam,.,valid,flash-metrics,20260521_114340,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114351,webcam,.,valid,flash-metrics,20260521_114351,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114401,webcam,.,valid,flash-metrics,20260521_114401,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114412,webcam,.,valid,flash-metrics,20260521_114412,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114422,webcam,.,valid,flash-metrics,20260521_114422,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114433,webcam,.,valid,flash-metrics,20260521_114433,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114453,webcam,.,valid,flash-metrics,20260521_114453,,210,2,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114504,webcam,.,valid,flash-metrics,20260521_114504,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114514,webcam,.,valid,flash-metrics,20260521_114514,,210,4,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114525,webcam,.,valid,flash-metrics,20260521_114525,,210,4,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114535,webcam,.,valid,flash-metrics,20260521_114535,,210,5,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114546,webcam,.,valid,flash-metrics,20260521_114546,,210,3,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114556,webcam,.,valid,flash-metrics,20260521_114556,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114607,webcam,.,valid,flash-metrics,20260521_114607,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114617,webcam,.,valid,flash-metrics,20260521_114617,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114628,webcam,.,valid,flash-metrics,20260521_114628,,210,2,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114638,webcam,.,valid,flash-metrics,20260521_114638,,210,7,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114649,webcam,.,valid,flash-metrics,20260521_114649,,210,10,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_114659,webcam,.,valid,flash-metrics,20260521_114659,,210,14,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115322,webcam,.,valid,flash-metrics,20260521_115322,,210,17,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115333,webcam,.,valid,flash-metrics,20260521_115333,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115343,webcam,.,valid,flash-metrics,20260521_115343,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115354,webcam,.,valid,flash-metrics,20260521_115354,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115404,webcam,.,valid,flash-metrics,20260521_115404,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115415,webcam,.,valid,flash-metrics,20260521_115415,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115425,webcam,.,valid,flash-metrics,20260521_115425,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115436,webcam,.,valid,flash-metrics,20260521_115436,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115446,webcam,.,valid,flash-metrics,20260521_115446,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115457,webcam,.,valid,flash-metrics,20260521_115457,,210,19,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115507,webcam,.,valid,flash-metrics,20260521_115507,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115518,webcam,.,valid,flash-metrics,20260521_115518,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115528,webcam,.,valid,flash-metrics,20260521_115528,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115539,webcam,.,valid,flash-metrics,20260521_115539,,210,19,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115855,webcam,.,valid,flash-metrics,20260521_115855,,359,60,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115919,webcam,.,valid,flash-metrics,20260521_115919,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115929,webcam,.,valid,flash-metrics,20260521_115929,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115940,webcam,.,valid,flash-metrics,20260521_115940,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_115950,webcam,.,valid,flash-metrics,20260521_115950,,210,14,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120001,webcam,.,valid,flash-metrics,20260521_120001,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120011,webcam,.,valid,flash-metrics,20260521_120011,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120022,webcam,.,valid,flash-metrics,20260521_120022,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120032,webcam,.,valid,flash-metrics,20260521_120032,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120043,webcam,.,valid,flash-metrics,20260521_120043,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120053,webcam,.,valid,flash-metrics,20260521_120053,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120112,webcam,.,valid,flash-metrics,20260521_120112,,210,3,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120123,webcam,.,valid,flash-metrics,20260521_120123,,210,7,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120134,webcam,.,valid,flash-metrics,20260521_120134,,210,5,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120144,webcam,.,valid,flash-metrics,20260521_120144,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120155,webcam,.,valid,flash-metrics,20260521_120155,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120205,webcam,.,valid,flash-metrics,20260521_120205,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120216,webcam,.,valid,flash-metrics,20260521_120216,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120226,webcam,.,valid,flash-metrics,20260521_120226,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120237,webcam,.,valid,flash-metrics,20260521_120237,,210,1,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120247,webcam,.,valid,flash-metrics,20260521_120247,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120258,webcam,.,valid,flash-metrics,20260521_120258,,210,1,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120308,webcam,.,valid,flash-metrics,20260521_120308,,210,3,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120319,webcam,.,valid,flash-metrics,20260521_120319,,210,0,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120329,webcam,.,valid,flash-metrics,20260521_120329,,210,3,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120350,webcam,.,valid,flash-metrics,20260521_120350,,210,18,,,,,,CSV de métricas de flashes por webcam
+webcam_flash_metrics_20260521_120408,webcam,.,valid,flash-metrics,20260521_120408,,210,0,,,,,,CSV de métricas de flashes por webcam

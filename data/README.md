@@ -4,6 +4,23 @@
 
 Esta carpeta contiene los datasets experimentales capturados por el sistema de arreglo de sensores. Todos los archivos están en formato CSV y siguen la estructura estándar documentada en [`docs/data_format.md`](../docs/data_format.md).
 
+## Salidas derivadas offline
+
+Además de los datos crudos e intermedios, el repositorio ahora usa estas carpetas derivadas reproducibles:
+
+- `data/derived/catalog/`: catálogo y validación de corridas.
+- `data/derived/normalized/`: normalización conservadora de artefactos heredados.
+- `data/derived/studies/`: agregaciones por estudio, condición y corrida.
+- `data/derived/presentation/`: resúmenes Markdown en español y plots para presentación si el entorno puede renderizarlos.
+
+Regeneración recomendada:
+
+```bash
+python3 scripts/build_run_catalog.py
+python3 scripts/normalize_legacy_runs.py
+python3 scripts/build_study_summaries.py
+```
+
 ## Archivos Disponibles
 
 ### 📈 Patrones de Movimiento Controlado
