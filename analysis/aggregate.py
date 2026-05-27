@@ -785,6 +785,18 @@ def collect_dual_random_train(
 def _webcam_intensity_markdown(summary_rows: list[dict[str, object]]) -> str:
     threshold_row = next((row for row in summary_rows if float(row["mean_detection_probability"]) >= 0.5), None)
     findings = []
+    pulse_counts = [
+        int(row["expected_total_pulses"])
+        for row in summary_rows
+        if str(row.get("expected_total_pulses", "")).isdigit()
+    ]
+    pulse_limit = (
+        f"Cada duty agrega hasta `{min(pulse_counts)}`-`{max(pulse_counts)}` pulsos esperados según `led_ack`."
+        if pulse_counts and min(pulse_counts) != max(pulse_counts)
+        else f"Cada duty agrega `{pulse_counts[0]}` pulsos esperados según `led_ack`."
+        if pulse_counts
+        else "La cantidad de pulsos esperados no está disponible en los CSV fuente."
+    )
     if threshold_row:
         findings.append(f"- La webcam empieza a mostrar deteccion consistente desde `duty {threshold_row['duty']}` en estas corridas heredadas.")
     if summary_rows:
@@ -814,7 +826,7 @@ def _webcam_intensity_markdown(summary_rows: list[dict[str, object]]) -> str:
             ),
             "",
             "## Limitaciones",
-            "- Estas probabilidades provienen de trenes cortos de `3` pulsos por condición; sirven para comparaciones iniciales, no para estadística final.",
+            f"- {pulse_limit} La probabilidad usa eventos detectados acotados por pulsos esperados; no identifica qué pulso individual disparó cada detección.",
             "- La métrica es detectabilidad de la cadena webcam + umbral actual, no radiometría del LED.",
         ]
     )
