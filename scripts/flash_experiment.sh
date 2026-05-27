@@ -4,6 +4,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source .venv/bin/activate
 
+printf '[NON-PRODUCTION] scripts/flash_experiment.sh ejecuta demo webcam-only (run_intent=demo).\n' >&2
+printf '[NON-PRODUCTION] No genera manifests de campaña ni habilita registro de producción.\n' >&2
+
 python tools/run_led_flash_experiment.py \
   --port /dev/ttyUSB0 \
   --index 2 \

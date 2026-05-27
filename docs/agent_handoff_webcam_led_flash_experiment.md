@@ -55,6 +55,26 @@ Ejecutar desde la raiz del repo:
 cd /home/juanm/SensorArray-for-laser-Lissajous-curves
 ```
 
+## Gobernanza de campaña (new-camera-mount)
+
+Para evitar mezcla con corridas legacy, cualquier corrida de producción del nuevo
+montaje debe cumplir:
+
+- `campaign_id` explícito y consistente durante todo el lote.
+- `mount_context=new-camera-mount`.
+- `run_intent=dark-control` para la corrida de control oscuro y `run_intent=production` para el lote.
+- `dark_control_ref` obligatorio en cada corrida productiva.
+- Freshness del dark-control: máximo **5 minutos** antes de la primera corrida productiva.
+
+El primer lote aceptado para reconstrucción estadística se define como:
+
+- **10 corridas independientes** (`run_index` 1..10).
+- **120 s** por corrida.
+- Intervalo aleatorio entre flashes de **1.8 a 2.2 s**.
+
+Si falta metadata o falla gate de dark-control, el lote no es elegible para
+reconstrucción y se debe corregir/repetir.
+
 ### 1. Preparar entorno Python
 
 ```bash
@@ -175,6 +195,14 @@ Estas imagenes sirven para presentacion porque muestran frames reales que cruzar
 - [ ] Confirmar que el LED externo esta en `GPIO17` con resistencia limitadora.
 - [ ] Confirmar que el LED rojo de power esta tapado fisicamente.
 - [ ] Ejecutar `./scripts/esp32_all_off.sh` antes de cualquier medicion.
+- [ ] Tratar `./scripts/flash_experiment.sh` como ruta **demo** no productiva (`run_intent=demo`).
+- [ ] Tratar `./scripts/intensity_sweep.sh` como ruta **tuning** no productiva (`run_intent=tuning`).
+- [ ] Antes de producción new-mount, preparar una corrida `dark-control` y verificar freshness <= 5 minutos.
+- [ ] Definir `campaign_id` y mantener `mount_context=new-camera-mount` en todo el lote.
+- [ ] Verificar que el lote productivo tenga 10 corridas independientes (`run_index` 1..10), 120 s c/u e intervalos 1.8–2.2 s.
+- [ ] Usar `scripts/new_mount_campaign_batch.sh <campaign-id> <dark-control-ref>` solo cuando la etapa operativa esté aprobada.
+- [ ] En toda corrida con webcam o flujo dual, usar preview cuando sea factible para verificar visualmente que el LED ilumina de verdad.
+- [ ] Si una corrida no puede usar preview por falta de display, seguridad o limitacion del entorno, dejar esa excepcion escrita en el reporte final con su motivo.
 - [ ] Ejecutar `./scripts/flash_experiment.sh` y verificar que el CSV reporte eventos detectados.
 - [ ] Revisar CSV en `data/webcam/` y PNG en `data/webcam/flash_presentation/`.
 - [ ] No modificar hardware ni escanear GPIOs salvo que el usuario lo pida explicitamente.

@@ -9,10 +9,199 @@ from pathlib import Path
 
 from .io import ensure_directory, read_csv_rows, read_key_value_csv, write_csv
 from .presentation import build_presentation_plots
+from .uncertainty import bootstrap_threshold_estimates, estimate_detection_thresholds, wilson_interval
 
 
 ACK_COUNT_PATTERN = re.compile(r"count=(?P<count>\d+)")
 DUAL_RUN_PATTERN = re.compile(r"random-train_\d{8}_\d{6}")
+
+CAMERA0_THRESHOLD_CAMPAIGN_ID = "camera0-intensity-threshold-statistics"
+REQUIRED_CAMERA0_DUTIES = {
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    10,
+    12,
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+}
+REQUIRED_CAMERA0_POSITIVE_CONTROLS = {16, 24, 32, 48, 64, 128}
+FIXED_PULSES_PER_DUTY = 60
+MIN_PULSES_PER_DUTY = 30
+REQUIRED_CAMERA0_PER_PULSE_COLUMNS = (
+    "campaign_id",
+    "run_id",
+    "camera_index",
+    "duty",
+    "pulse_index",
+    "detected_any",
+    "detected_frames",
+    "detection_events",
+    "expected_pulses",
+    "block_id",
+    "block_order",
+    "is_dark_control",
+    "is_positive_control",
+    "acquisition_fingerprint",
+)
+REQUIRED_CAMERA0_PLAN_COLUMNS = (
+    "campaign_id",
+    "camera_index",
+    "duty",
+    "pulse_index",
+    "block_id",
+    "block_order",
+    "is_dark_control",
+    "is_positive_control",
+)
+
+REQUIRED_CAMERA0_WILSON_COLUMNS = (
+    "campaign_id",
+    "camera_index",
+    "duty",
+    "n",
+    "detected",
+    "detection_rate",
+    "wilson_low_95",
+    "wilson_high_95",
+)
+
+REQUIRED_CAMERA0_THRESHOLD_COLUMNS = (
+    "campaign_id",
+    "camera_index",
+    "duty50",
+    "duty90",
+    "duty95",
+    "duty50_ci_low",
+    "duty50_ci_high",
+    "duty90_ci_low",
+    "duty90_ci_high",
+    "duty95_ci_low",
+    "duty95_ci_high",
+)
+
+REQUIRED_CAMERA0_VALIDATION_COLUMNS = (
+    "campaign_id",
+    "camera_index",
+    "is_compliant",
+    "missing_duties",
+    "under_replicated_duties",
+    "below_fixed_target_duties",
+    "excluded_rows",
+    "accepted_rows",
+    "resumen_es",
+)
+
+
+def _normalize_int(value: object | None) -> int | None:
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def validate_camera0_plan_rows(plan_rows: list[dict[str, object]]) -> dict[str, object]:
+    duty_counts: defaultdict[int, int] = defaultdict(int)
+    block_duties: defaultdict[object, set[int]] = defaultdict(set)
+    missing_columns = sorted(
+        {
+            column
+            for row in plan_rows
+            for column in REQUIRED_CAMERA0_PLAN_COLUMNS
+            if column not in row
+        }
+    )
+    for row in plan_rows:
+        duty = _normalize_int(row.get("duty"))
+        block_id = row.get("block_id")
+        if duty is None:
+            continue
+        duty_counts[duty] += 1
+        block_duties[block_id].add(duty)
+
+    missing_duties = sorted(REQUIRED_CAMERA0_DUTIES.difference(duty_counts.keys()))
+    under_replicated_duties = sorted(
+        duty
+        for duty in REQUIRED_CAMERA0_DUTIES
+        if duty_counts.get(duty, 0) < MIN_PULSES_PER_DUTY
+    )
+    below_fixed_target = sorted(
+        duty
+        for duty in REQUIRED_CAMERA0_DUTIES
+        if duty_counts.get(duty, 0) < FIXED_PULSES_PER_DUTY
+    )
+    expected_block_cardinality = len(REQUIRED_CAMERA0_DUTIES)
+    has_interleaved_blocks = bool(
+        block_duties
+        and all(len(duties) == expected_block_cardinality for duties in block_duties.values())
+    )
+    return {
+        "is_compliant": not missing_duties and not under_replicated_duties and has_interleaved_blocks and not missing_columns,
+        "missing_duties": missing_duties,
+        "under_replicated_duties": under_replicated_duties,
+        "below_fixed_target_duties": below_fixed_target,
+        "pulses_per_duty_target": FIXED_PULSES_PER_DUTY,
+        "minimum_pulses_per_duty": MIN_PULSES_PER_DUTY,
+        "has_interleaved_blocks": has_interleaved_blocks,
+        "required_plan_columns": list(REQUIRED_CAMERA0_PLAN_COLUMNS),
+        "missing_columns": missing_columns,
+    }
+
+
+def filter_camera0_campaign_rows(
+    rows: list[dict[str, object]],
+    campaign_id: str = CAMERA0_THRESHOLD_CAMPAIGN_ID,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    accepted: list[dict[str, object]] = []
+    excluded: list[dict[str, object]] = []
+
+    # Use modal fingerprint among rows with complete campaign+camera metadata.
+    comparable_fingerprints = [
+        str(row.get("acquisition_fingerprint", ""))
+        for row in rows
+        if row.get("campaign_id") == campaign_id and _normalize_int(row.get("camera_index")) == 0 and row.get("acquisition_fingerprint") not in (None, "")
+    ]
+    canonical_fingerprint = ""
+    if comparable_fingerprints:
+        canonical_fingerprint = max(set(comparable_fingerprints), key=comparable_fingerprints.count)
+
+    for row in rows:
+        campaign = row.get("campaign_id")
+        camera_index = _normalize_int(row.get("camera_index"))
+        fingerprint = row.get("acquisition_fingerprint")
+
+        reason = None
+        if campaign in (None, ""):
+            reason = "missing_campaign_id"
+        elif campaign != campaign_id:
+            reason = "campaign_mismatch"
+        elif camera_index is None:
+            reason = "missing_camera_index"
+        elif camera_index != 0:
+            reason = "wrong_camera_index"
+        elif fingerprint in (None, ""):
+            reason = "missing_acquisition_fingerprint"
+        elif canonical_fingerprint and str(fingerprint) != canonical_fingerprint:
+            reason = "acquisition_fingerprint_drift"
+
+        if reason:
+            excluded.append({**row, "exclusion_reason": reason})
+        else:
+            accepted.append(row)
+
+    return accepted, excluded
 
 
 def _to_float(value: object | None) -> float | None:
@@ -95,6 +284,207 @@ def _markdown_table(rows: list[dict[str, object]], columns: list[str]) -> str:
 def _write_markdown(path: Path, content: str) -> None:
     ensure_directory(path.parent)
     path.write_text(content, encoding="utf-8")
+
+
+def generate_camera0_threshold_artifacts(
+    input_rows: list[dict[str, object]],
+    studies_dir: Path,
+    campaign_id: str = CAMERA0_THRESHOLD_CAMPAIGN_ID,
+    camera_index: int = 0,
+) -> dict[str, object]:
+    ensure_directory(studies_dir)
+    presentation_dir = studies_dir.parent / "presentation" if studies_dir.name == "studies" else studies_dir
+    plots_dir = presentation_dir / "plots"
+    ensure_directory(plots_dir)
+
+    accepted_rows, excluded_rows = filter_camera0_campaign_rows(input_rows, campaign_id=campaign_id)
+    validation = validate_camera0_plan_rows(accepted_rows)
+
+    per_pulse_rows: list[dict[str, object]] = []
+    duty_counts: defaultdict[int, dict[str, int]] = defaultdict(lambda: {"detected": 0, "total": 0})
+    for row in accepted_rows:
+        duty = _normalize_int(row.get("duty"))
+        if duty is None:
+            continue
+        detected_any = _to_bool(row.get("detected_any"))
+        duty_counts[duty]["total"] += 1
+        if detected_any:
+            duty_counts[duty]["detected"] += 1
+        per_pulse_rows.append(
+            {
+                "campaign_id": campaign_id,
+                "run_id": row.get("run_id", ""),
+                "camera_index": camera_index,
+                "duty": duty,
+                "pulse_index": _normalize_int(row.get("pulse_index")) or 0,
+                "detected_any": str(detected_any).lower(),
+                "detected_frames": _normalize_int(row.get("detected_frames")) or 0,
+                "detection_events": _normalize_int(row.get("detection_events")) or 0,
+                "expected_pulses": _normalize_int(row.get("expected_pulses")) or 1,
+                "block_id": _normalize_int(row.get("block_id")) or 0,
+                "block_order": _normalize_int(row.get("block_order")) or 0,
+                "is_dark_control": str(duty == 0).lower(),
+                "is_positive_control": str(duty in REQUIRED_CAMERA0_POSITIVE_CONTROLS).lower(),
+                "acquisition_fingerprint": row.get("acquisition_fingerprint", ""),
+            }
+        )
+
+    by_duty_rows: list[dict[str, object]] = []
+    threshold_input: list[dict[str, int]] = []
+    for duty in sorted(duty_counts):
+        detected = int(duty_counts[duty]["detected"])
+        total = int(duty_counts[duty]["total"])
+        low, high = wilson_interval(detected, total)
+        threshold_input.append({"duty": duty, "detected": detected, "total": total})
+        by_duty_rows.append(
+            {
+                "campaign_id": campaign_id,
+                "camera_index": camera_index,
+                "duty": duty,
+                "n": total,
+                "detected": detected,
+                "detection_rate": round(detected / total, 6) if total else 0.0,
+                "wilson_low_95": round(low, 6),
+                "wilson_high_95": round(high, 6),
+            }
+        )
+
+    threshold_point = estimate_detection_thresholds(threshold_input)
+    threshold_boot = bootstrap_threshold_estimates(threshold_input)
+    threshold_rows = [
+        {
+            "campaign_id": campaign_id,
+            "camera_index": camera_index,
+            "duty50": round(float(threshold_point["duty50"]), 6),
+            "duty90": round(float(threshold_point["duty90"]), 6),
+            "duty95": round(float(threshold_point["duty95"]), 6),
+            "duty50_ci_low": round(float(threshold_boot["duty50"]["low"]), 6),
+            "duty50_ci_high": round(float(threshold_boot["duty50"]["high"]), 6),
+            "duty90_ci_low": round(float(threshold_boot["duty90"]["low"]), 6),
+            "duty90_ci_high": round(float(threshold_boot["duty90"]["high"]), 6),
+            "duty95_ci_low": round(float(threshold_boot["duty95"]["low"]), 6),
+            "duty95_ci_high": round(float(threshold_boot["duty95"]["high"]), 6),
+        }
+    ]
+
+    validation_rows = [
+        {
+            "campaign_id": campaign_id,
+            "camera_index": camera_index,
+            "is_compliant": str(validation["is_compliant"]).lower(),
+            "missing_duties": ",".join(str(d) for d in validation["missing_duties"]),
+            "under_replicated_duties": ",".join(str(d) for d in validation["under_replicated_duties"]),
+            "below_fixed_target_duties": ",".join(str(d) for d in validation["below_fixed_target_duties"]),
+            "excluded_rows": len(excluded_rows),
+            "accepted_rows": len(per_pulse_rows),
+            "resumen_es": "Cumple plan camera0" if validation["is_compliant"] else "Plan camera0 incompleto",
+        }
+    ]
+
+    per_pulse_path = studies_dir / "camera0_intensity_per_pulse.csv"
+    by_duty_path = studies_dir / "camera0_intensity_by_duty_wilson.csv"
+    threshold_path = studies_dir / "camera0_threshold_estimates.csv"
+    validation_path = studies_dir / "camera0_validation_report.csv"
+    ci_plot_path = plots_dir / "camera0_duty_detection_ci.png"
+    bootstrap_plot_path = plots_dir / "camera0_threshold_bootstrap.png"
+    summary_path = presentation_dir / "camera0_intensity_threshold_summary.md"
+    write_csv(per_pulse_path, per_pulse_rows)
+    write_csv(by_duty_path, by_duty_rows)
+    write_csv(threshold_path, threshold_rows)
+    write_csv(validation_path, validation_rows)
+    _write_camera0_threshold_plots(by_duty_rows, threshold_rows[0], ci_plot_path, bootstrap_plot_path)
+    _write_camera0_threshold_summary(summary_path, ci_plot_path, bootstrap_plot_path, validation_rows[0], threshold_rows[0])
+
+    return {
+        "accepted_rows": len(per_pulse_rows),
+        "excluded_rows": len(excluded_rows),
+        "paths": {
+            "camera0_intensity_per_pulse": str(per_pulse_path),
+            "camera0_intensity_by_duty_wilson": str(by_duty_path),
+            "camera0_threshold_estimates": str(threshold_path),
+            "camera0_validation_report": str(validation_path),
+            "camera0_duty_detection_ci_plot": str(ci_plot_path),
+            "camera0_threshold_bootstrap_plot": str(bootstrap_plot_path),
+            "camera0_intensity_threshold_summary": str(summary_path),
+        },
+    }
+
+
+def _write_camera0_threshold_plots(
+    by_duty_rows: list[dict[str, object]],
+    threshold_row: dict[str, object],
+    ci_plot_path: Path,
+    bootstrap_plot_path: Path,
+) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    duties = [int(row["duty"]) for row in by_duty_rows]
+    rates = [float(row["detection_rate"]) for row in by_duty_rows]
+    lows = [float(row["wilson_low_95"]) for row in by_duty_rows]
+    highs = [float(row["wilson_high_95"]) for row in by_duty_rows]
+    lower_errors = [max(0.0, rate - low) for rate, low in zip(rates, lows)]
+    upper_errors = [max(0.0, high - rate) for rate, high in zip(rates, highs)]
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    ax.errorbar(duties, rates, yerr=[lower_errors, upper_errors], fmt="o-", capsize=4)
+    ax.set_title("Detección camera0 por duty")
+    ax.set_xlabel("Duty LED")
+    ax.set_ylabel("Probabilidad de detección")
+    ax.set_ylim(-0.05, 1.05)
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(ci_plot_path, dpi=150)
+    plt.close(fig)
+
+    labels = ["duty50", "duty90", "duty95"]
+    centers = [float(threshold_row[label]) for label in labels]
+    lows = [float(threshold_row[f"{label}_ci_low"]) for label in labels]
+    highs = [float(threshold_row[f"{label}_ci_high"]) for label in labels]
+    lower_errors = [max(0.0, center - low) for center, low in zip(centers, lows)]
+    upper_errors = [max(0.0, high - center) for center, high in zip(centers, highs)]
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.errorbar(labels, centers, yerr=[lower_errors, upper_errors], fmt="o", capsize=5)
+    ax.set_title("Umbrales estimados camera0")
+    ax.set_xlabel("Estimador")
+    ax.set_ylabel("Duty LED")
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(bootstrap_plot_path, dpi=150)
+    plt.close(fig)
+
+
+def _write_camera0_threshold_summary(
+    summary_path: Path,
+    ci_plot_path: Path,
+    bootstrap_plot_path: Path,
+    validation_row: dict[str, object],
+    threshold_row: dict[str, object],
+) -> None:
+    content = "\n".join(
+        [
+            "# Resumen de umbral de intensidad camera0",
+            "",
+            "## Análisis estadístico",
+            "",
+            "Este resumen reporta detectabilidad por duty con barras de error Wilson 95% y estimadores bootstrap para duty50/duty90/duty95.",
+            "",
+            f"- Estado de validación: `{validation_row.get('resumen_es', '')}`",
+            f"- duty50: `{threshold_row.get('duty50')}`",
+            f"- duty90: `{threshold_row.get('duty90')}`",
+            f"- duty95: `{threshold_row.get('duty95')}`",
+            "",
+            "## Plots requeridos",
+            "",
+            f"- `{ci_plot_path.name}`",
+            f"- `{bootstrap_plot_path.name}`",
+            "",
+        ]
+    )
+    _write_markdown(summary_path, content)
 
 
 def collect_webcam_intensity(repo_root: Path) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
@@ -314,7 +704,10 @@ def collect_op598_characterization(repo_root: Path) -> tuple[list[dict[str, obje
     return run_rows, by_duration_rows, by_duty_rows
 
 
-def collect_dual_random_train(repo_root: Path) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+def collect_dual_random_train(
+    repo_root: Path,
+    campaign_id: str | None = None,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     rows: list[dict[str, object]] = []
     for coincidence_path in sorted(repo_root.glob("data/dual_experiments/**/coincidence_table.csv")):
         run_dir = coincidence_path.parent
@@ -344,6 +737,11 @@ def collect_dual_random_train(repo_root: Path) -> tuple[list[dict[str, object]],
         run_row = {
             "run_id": run_id,
             "variant": str(run_dir.parent.name),
+            "campaign_id": summary.get("production.campaign_id", ""),
+            "mount_context": summary.get("production.mount_context", ""),
+            "run_intent": summary.get("production.run_intent", ""),
+            "dark_control_ref": summary.get("production.dark_control_ref", ""),
+            "run_index": _to_int(summary.get("production.run_index")) or "",
             "duty": _to_int(summary.get("op598.metadata.duty")) or "",
             "duration_ms": _to_int(summary.get("op598.metadata.duration_ms")) or "",
             "command_count": _to_int(summary.get("op598.metadata.count")) or total_pulses,
@@ -362,6 +760,8 @@ def collect_dual_random_train(repo_root: Path) -> tuple[list[dict[str, object]],
             "source_summary": _relative(summary_path, repo_root),
             "source_coincidence": _relative(coincidence_path, repo_root),
         }
+        if campaign_id and run_row["campaign_id"] != campaign_id:
+            continue
         rows.append(run_row)
 
     fully_covered = [row for row in rows if str(row["limited_coverage"]) == "false"]
@@ -562,14 +962,19 @@ def _overview_markdown(plot_paths: list[str]) -> str:
     )
 
 
-def build_study_outputs(repo_root: Path, studies_dir: Path, presentation_dir: Path) -> dict[str, object]:
+def build_study_outputs(
+    repo_root: Path,
+    studies_dir: Path,
+    presentation_dir: Path,
+    campaign_id: str | None = None,
+) -> dict[str, object]:
     ensure_directory(studies_dir)
     ensure_directory(presentation_dir)
 
     intensity_observations, intensity_summary = collect_webcam_intensity(repo_root)
     parameter_observations, exposure_summary, duration_summary = collect_webcam_parameters(repo_root)
     op598_runs, op598_duration, op598_duty = collect_op598_characterization(repo_root)
-    dual_runs, dual_summary = collect_dual_random_train(repo_root)
+    dual_runs, dual_summary = collect_dual_random_train(repo_root, campaign_id=campaign_id)
 
     write_csv(studies_dir / "webcam_intensity_observations.csv", intensity_observations)
     write_csv(studies_dir / "webcam_intensity_by_duty.csv", intensity_summary)
@@ -625,6 +1030,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parent.parent)
     parser.add_argument("--studies-dir", type=Path, default=Path(__file__).resolve().parent.parent / "data" / "derived" / "studies")
     parser.add_argument("--presentation-dir", type=Path, default=Path(__file__).resolve().parent.parent / "data" / "derived" / "presentation")
+    parser.add_argument("--campaign-id", help="Optional campaign filter for dual random-train aggregation")
     return parser.parse_args()
 
 
@@ -634,6 +1040,7 @@ def main() -> int:
         repo_root=args.repo_root.resolve(),
         studies_dir=args.studies_dir.resolve(),
         presentation_dir=args.presentation_dir.resolve(),
+        campaign_id=args.campaign_id,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0

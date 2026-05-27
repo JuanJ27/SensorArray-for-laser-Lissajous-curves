@@ -1,0 +1,62 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Python 3.8+ (data analysis + hardware tooling), MicroPython on ESP32, Jupyter notebooks.
+  Architecture: Script-first repository (hardware/, tools/, scripts/, notebooks/, data/).
+  Testing: pytest declared in requirements; no dedicated tests/ suite detected yet.
+  Style: flake8 and black declared in requirements; no pinned local config files detected.
+
+strict_tdd: true
+
+testing:
+  strict_tdd_mode: enabled
+  detected_on: 2026-05-26
+  test_runner:
+    available: true
+    framework: pytest
+    command: pytest
+  layers:
+    unit:
+      available: true
+      tool: pytest
+    integration:
+      available: false
+      tool: "—"
+    e2e:
+      available: false
+      tool: "—"
+  coverage:
+    available: false
+    command: "—"
+  quality_tools:
+    linter:
+      available: true
+      command: flake8
+    type_checker:
+      available: false
+      command: "—"
+    formatter:
+      available: true
+      command: black .
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules/packages
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow existing code patterns and conventions
+  verify:
+    - Run tests if test infrastructure exists
+    - Compare implementation against every spec scenario
+  archive:
+    - Warn before merging destructive deltas (large removals)

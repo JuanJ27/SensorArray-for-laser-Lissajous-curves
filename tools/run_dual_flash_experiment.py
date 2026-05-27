@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import shutil
 import subprocess
@@ -28,6 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DETECTOR = PROJECT_ROOT / "tools" / "webcam_flash_detector.py"
 OP598_CAPTURE = PROJECT_ROOT / "tools" / "capture_op598_response.py"
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "data" / "dual_experiments"
+DARK_CONTROL_FRESHNESS_MINUTES = 5
 
 
 def display_path(path: Path) -> str:
@@ -66,6 +68,145 @@ def build_output_paths(root: Path, mode: str) -> dict[str, Path]:
 
 def run_subprocess(command: list[str]) -> subprocess.Popen[str]:
     return subprocess.Popen(command, stdout=sys.stdout, stderr=sys.stderr, text=True)
+
+
+def _require_non_empty(value: str | None, field_name: str) -> str:
+    if value is None or not str(value).strip():
+        raise ValueError(f"{field_name} is required for production runs")
+    return str(value).strip()
+
+
+def _build_fingerprint_payload(args: argparse.Namespace, *, include_duty: bool) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "mode": args.mode,
+        "index": args.index,
+        "width": args.width,
+        "height": args.height,
+        "fps": args.fps,
+        "fourcc": args.fourcc,
+        "metric": args.metric,
+        "threshold_delta": args.threshold_delta,
+        "sigma_multiplier": args.sigma_multiplier,
+        "pre_ms": args.pre_ms,
+        "duration_ms": args.duration_ms,
+        "post_ms": args.post_ms,
+        "sample_us": args.sample_us,
+    }
+    if include_duty:
+        payload["duty"] = args.duty
+    if args.mode == "train":
+        payload["period_ms"] = args.period_ms
+        payload["count"] = args.count
+    elif args.mode == "random-train":
+        payload["min_period_ms"] = args.min_period_ms
+        payload["max_period_ms"] = args.max_period_ms
+        payload["count"] = args.count
+    return payload
+
+
+def build_config_fingerprint(args: argparse.Namespace) -> str:
+    payload = _build_fingerprint_payload(args, include_duty=True)
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+
+
+def build_acquisition_config_fingerprint(args: argparse.Namespace) -> str:
+    payload = _build_fingerprint_payload(args, include_duty=False)
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+
+
+def validate_production_metadata(args: argparse.Namespace) -> dict[str, str | int]:
+    campaign_id = _require_non_empty(args.campaign_id, "campaign_id")
+    mount_context = _require_non_empty(args.mount_context, "mount_context")
+    dark_control_ref = _require_non_empty(args.dark_control_ref, "dark_control_ref")
+    if int(args.run_index) <= 0:
+        raise ValueError("run_index must be a positive integer for production runs")
+    metadata: dict[str, str | int] = {
+        "campaign_id": campaign_id,
+        "mount_context": mount_context,
+        "run_intent": "production",
+        "dark_control_ref": dark_control_ref,
+        "run_index": int(args.run_index),
+        "config_fingerprint": build_config_fingerprint(args),
+        "acquisition_config_fingerprint": build_acquisition_config_fingerprint(args),
+    }
+    batch_started_at = getattr(args, "batch_started_at", None)
+    if batch_started_at:
+        metadata["batch_started_at"] = str(batch_started_at)
+    return metadata
+
+
+def validate_dark_control_metadata(args: argparse.Namespace) -> dict[str, str | int | None]:
+    campaign_id = _require_non_empty(args.campaign_id, "campaign_id")
+    mount_context = _require_non_empty(args.mount_context, "mount_context")
+    return {
+        "campaign_id": campaign_id,
+        "mount_context": mount_context,
+        "run_intent": "dark-control",
+        "dark_control_ref": None,
+        "run_index": int(args.run_index),
+        "config_fingerprint": build_config_fingerprint(args),
+        "acquisition_config_fingerprint": build_acquisition_config_fingerprint(args),
+    }
+
+
+def validate_run_metadata(args: argparse.Namespace) -> dict[str, str | int | None] | None:
+    if args.run_intent == "production":
+        return validate_production_metadata(args)
+    if args.run_intent == "dark-control":
+        return validate_dark_control_metadata(args)
+    return None
+
+
+def _resolve_dark_control_manifest(output_root: Path, dark_control_ref: str) -> Path:
+    direct_path = output_root / dark_control_ref / "manifest.json"
+    if direct_path.exists():
+        return direct_path
+    for manifest_path in output_root.glob("*/manifest.json"):
+        try:
+            payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if payload.get("run_id") == dark_control_ref:
+            return manifest_path
+    raise ValueError(f"dark_control_ref '{dark_control_ref}' does not resolve to a manifest")
+
+
+def validate_dark_control_gate(
+    output_root: Path,
+    campaign_id: str,
+    mount_context: str,
+    dark_control_ref: str,
+    config_fingerprint: str,
+    production_started_at: datetime,
+    freshness_minutes: int,
+    acquisition_config_fingerprint: str | None = None,
+    batch_started_at: datetime | None = None,
+) -> dict[str, object]:
+    resolved_ref = _require_non_empty(dark_control_ref, "dark_control_ref")
+    manifest_path = _resolve_dark_control_manifest(output_root, resolved_ref)
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    if payload.get("run_intent") != "dark-control":
+        raise ValueError("dark_control_ref must point to a run with run_intent='dark-control'")
+    if payload.get("campaign_id") != campaign_id:
+        raise ValueError("dark_control_ref campaign_id mismatch")
+    if payload.get("mount_context") != mount_context:
+        raise ValueError("dark_control_ref mount_context mismatch")
+    expected_fingerprint = acquisition_config_fingerprint or config_fingerprint
+    dark_control_fingerprint = payload.get("acquisition_config_fingerprint") or payload.get("config_fingerprint")
+    if dark_control_fingerprint != expected_fingerprint:
+        raise ValueError("dark_control_ref config_fingerprint mismatch")
+
+    created_at = datetime.fromisoformat(str(payload.get("created_at")))
+    gate_started_at = batch_started_at or production_started_at
+    age_seconds = (gate_started_at - created_at).total_seconds()
+    freshness_seconds = freshness_minutes * 60
+    if age_seconds < 0:
+        raise ValueError("dark_control_ref created_at cannot be after production start")
+    if age_seconds > freshness_seconds:
+        raise ValueError("dark_control_ref is stale (older than freshness window)")
+
+    return payload
 
 
 def nominal_capture_seconds(args: argparse.Namespace) -> float:
@@ -526,6 +667,7 @@ def write_manifest(
     pulse_events: list[dict[str, float | int | str | bool | None]],
     coincidence_rows: list[dict[str, float | int | str | bool | None]],
     visuals_status: dict[str, str | int | bool],
+    run_metadata: dict[str, str | int | None] | None,
 ) -> None:
     manifest = {
         "run_id": paths["run_dir"].name,
@@ -542,6 +684,8 @@ def write_manifest(
         "coincidence_pulse_count": len(coincidence_rows),
         "visuals": visuals_status,
     }
+    if run_metadata:
+        manifest.update(run_metadata)
     paths["manifest"].write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
@@ -553,6 +697,7 @@ def write_dual_summary(
     pulse_events: list[dict[str, float | int | str | bool | None]],
     coincidence_rows: list[dict[str, float | int | str | bool | None]],
     visuals_status: dict[str, str | int | bool],
+    run_metadata: dict[str, str | int | None] | None,
 ) -> None:
     detected_windows = sum(1 for row in coincidence_rows if bool(row["detected_in_window"]))
     matched_detected = sum(1 for row in coincidence_rows if bool(row["matched_frame_detected"]))
@@ -581,6 +726,19 @@ def write_dual_summary(
         writer.writerow(["visuals.average_frame_written", visuals_status["average_frame_written"]])
         writer.writerow(["visuals.heatmap_written", visuals_status["heatmap_written"]])
         writer.writerow(["visuals.pulse_strip_written", visuals_status["pulse_strip_written"]])
+        if run_metadata and str(run_metadata.get("run_intent")) == "production":
+            production_fields = [
+                "campaign_id",
+                "mount_context",
+                "run_intent",
+                "dark_control_ref",
+                "run_index",
+                "config_fingerprint",
+            ]
+            if "batch_started_at" in run_metadata:
+                production_fields.append("batch_started_at")
+            for field in production_fields:
+                writer.writerow([f"production.{field}", run_metadata[field]])
         for key, value in sorted(op598.items()):
             writer.writerow([f"op598.{key}", value])
 
@@ -664,6 +822,21 @@ def analyze_run(
 
 
 def run(args: argparse.Namespace) -> int:
+    run_metadata: dict[str, str | int | None] | None = validate_run_metadata(args)
+    if args.run_intent == "production":
+        batch_started_at = datetime.fromisoformat(args.batch_started_at) if args.batch_started_at else None
+        validate_dark_control_gate(
+            output_root=Path(args.output_dir),
+            campaign_id=str(run_metadata["campaign_id"]),
+            mount_context=str(run_metadata["mount_context"]),
+            dark_control_ref=str(run_metadata["dark_control_ref"]),
+            config_fingerprint=str(run_metadata["config_fingerprint"]),
+            acquisition_config_fingerprint=str(run_metadata["acquisition_config_fingerprint"]),
+            production_started_at=datetime.now(),
+            freshness_minutes=DARK_CONTROL_FRESHNESS_MINUTES,
+            batch_started_at=batch_started_at,
+        )
+
     paths = build_output_paths(Path(args.output_dir), args.mode)
     detector = run_subprocess(detector_command(args, paths))
     try:
@@ -683,6 +856,7 @@ def run(args: argparse.Namespace) -> int:
         pulse_events,
         coincidence_rows,
         visuals_status,
+        run_metadata,
     )
     write_manifest(
         paths,
@@ -692,6 +866,7 @@ def run(args: argparse.Namespace) -> int:
         pulse_events,
         coincidence_rows,
         visuals_status,
+        run_metadata,
     )
 
     print(f"Run directory: {paths['run_dir']}")
@@ -708,6 +883,20 @@ def parse_args() -> argparse.Namespace:
         description="Run a dual OP598 plus webcam flash experiment from one command."
     )
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_ROOT), help="Root directory for each run")
+    parser.add_argument(
+        "--run-intent",
+        choices=("dark-control", "production", "demo", "tuning"),
+        default="demo",
+        help="Operational run intent for campaign governance",
+    )
+    parser.add_argument("--campaign-id", help="Campaign identifier (required for production)")
+    parser.add_argument("--mount-context", help="Mount context label (required for production)")
+    parser.add_argument("--dark-control-ref", help="Dark-control run reference (required for production)")
+    parser.add_argument(
+        "--batch-started-at",
+        help="Optional ISO timestamp used as dark-control freshness anchor for batch production runs",
+    )
+    parser.add_argument("--run-index", type=int, default=0, help="1-based production run index")
     parser.add_argument("--port", default="/dev/ttyUSB0", help="ESP32 serial port")
     parser.add_argument("--baud", type=int, default=115200, help="ESP32 serial baudrate")
 

@@ -9,6 +9,72 @@ import pandas as pd
 
 
 THRESHOLD_SENSITIVITY_DELTAS = (0.10, 0.20)
+DEFAULT_BOOTSTRAP_SEED = 7
+
+
+def _fit_logistic_line(by_duty_counts: list[dict[str, int]]) -> tuple[float, float]:
+    duties: list[float] = []
+    logits: list[float] = []
+    for row in by_duty_counts:
+        duty = float(row["duty"])
+        total = int(row["total"])
+        detected = int(row["detected"])
+        if total <= 0:
+            continue
+        # Laplace smoothing to avoid inf logit at p in {0,1}.
+        p = (detected + 0.5) / (total + 1.0)
+        p = min(max(p, 1e-6), 1.0 - 1e-6)
+        duties.append(duty)
+        logits.append(math.log(p / (1.0 - p)))
+    if len(duties) < 2:
+        return 0.0, 0.0
+    slope, intercept = np.polyfit(np.array(duties), np.array(logits), deg=1)
+    return float(slope), float(intercept)
+
+
+def _threshold_from_fit(slope: float, intercept: float, probability: float) -> float:
+    if slope <= 0:
+        return float("nan")
+    logit = math.log(probability / (1.0 - probability))
+    return float((logit - intercept) / slope)
+
+
+def estimate_detection_thresholds(by_duty_counts: list[dict[str, int]]) -> dict[str, float]:
+    slope, intercept = _fit_logistic_line(by_duty_counts)
+    duty50 = _threshold_from_fit(slope, intercept, 0.50)
+    duty90 = _threshold_from_fit(slope, intercept, 0.90)
+    duty95 = _threshold_from_fit(slope, intercept, 0.95)
+    monotonic = sorted([duty50, duty90, duty95])
+    return {"duty50": monotonic[0], "duty90": monotonic[1], "duty95": monotonic[2]}
+
+
+def bootstrap_threshold_estimates(
+    by_duty_counts: list[dict[str, int]],
+    n_bootstrap: int = 500,
+    seed: int = DEFAULT_BOOTSTRAP_SEED,
+) -> dict[str, dict[str, float]]:
+    rng = np.random.default_rng(seed)
+    boot_samples = {"duty50": [], "duty90": [], "duty95": []}
+    for _ in range(n_bootstrap):
+        sampled_rows = []
+        for row in by_duty_counts:
+            duty = int(row["duty"])
+            total = int(row["total"])
+            detected = int(rng.binomial(total, (int(row["detected"]) / total) if total > 0 else 0.0))
+            sampled_rows.append({"duty": duty, "detected": detected, "total": total})
+        estimate = estimate_detection_thresholds(sampled_rows)
+        for key in boot_samples:
+            boot_samples[key].append(float(estimate[key]))
+
+    summary: dict[str, dict[str, float]] = {}
+    for key, values in boot_samples.items():
+        arr = np.array(values, dtype=float)
+        summary[key] = {
+            "low": float(np.quantile(arr, 0.025)),
+            "mid": float(np.quantile(arr, 0.5)),
+            "high": float(np.quantile(arr, 0.975)),
+        }
+    return summary
 
 
 def read_key_value_csv(path: Path) -> dict[str, str]:

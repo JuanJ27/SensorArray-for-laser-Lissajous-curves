@@ -257,6 +257,50 @@ Salida del runner dual:
 - `dual_summary.csv`
 - `dual_summary.md`
 
+## Protocolo de campaña de producción (new-camera-mount)
+
+> Este bloque define **readiness operacional** para la primera campaña estadística.
+> En esta etapa no se ejecuta adquisición real desde esta guía.
+
+### Regla de gate oscuro (obligatoria)
+
+- Antes de cualquier corrida `run_intent=production` debe existir una corrida previa con `run_intent=dark-control`.
+- La referencia `dark_control_ref` debe pertenecer al mismo `campaign_id` y `mount_context=new-camera-mount`.
+- La validez del dark-control vence a los **5 minutos** (máximo) desde su `created_at` antes de la primera corrida productiva.
+- Si cambia cualquier parámetro de adquisición/cámara/perfil, hay que regenerar dark-control.
+
+### Primer lote fijo (criterio de aceptación)
+
+- El primer batch válido se define como **10 corridas independientes**.
+- Cada corrida debe durar **120 s** (`run_duration_s=120`).
+- Cada corrida debe usar `random-train` con intervalo entre flashes en **1.8–2.2 s** (`min_period_ms=1800`, `max_period_ms=2200`).
+- Elegibilidad de reconstrucción: solo cuando las 10 corridas tienen metadata completa de campaña y referencia de dark-control válida.
+
+### Metadata mínima requerida para producción
+
+Toda corrida productiva debe registrar en `manifest.json`:
+
+- `campaign_id`
+- `mount_context` (`new-camera-mount`)
+- `run_intent` (`dark-control` o `production`)
+- `dark_control_ref` (solo obligatorio para `production`)
+- `run_index`
+- `config_fingerprint`
+
+### Comandos de readiness (sin medición real)
+
+Validar sintaxis y ayudas de los scripts, sin disparar adquisición:
+
+```bash
+bash -n scripts/new_mount_campaign_batch.sh
+bash -n scripts/flash_experiment.sh
+bash -n scripts/intensity_sweep.sh
+python tools/run_dual_flash_experiment.py --help
+```
+
+El flujo productivo de referencia queda en `scripts/new_mount_campaign_batch.sh`,
+pero su ejecución en vivo corresponde a la Fase 4 (operación).
+
 Interpretación útil para reconstrucción estadística:
 
 - `pulse_index` y `t_us` del OP598 dan la referencia numérica más confiable de cada disparo dentro de este montaje.
@@ -268,6 +312,9 @@ Interpretación útil para reconstrucción estadística:
 
 Esta fase NO intenta filmar el flash "en tiempo real" como si la webcam fuera rápida.
 Lo que hace es otra cosa, y es importante entenderlo bien:
+
+- Requisito operativo actual: toda corrida con webcam o flujo dual debe usar `--preview` cuando sea factible para verificar visualmente que el LED realmente ilumina.
+- Si una corrida puntual no puede usar preview por falta de display, seguridad operativa o incompatibilidad del entorno, esa excepcion debe quedar explicitada en el reporte final de la corrida junto con el motivo.
 
 - OP598 en `ADC36` da un ancla temporal gruesa por pulso.
 - La webcam a `~30 FPS` aporta coincidencia visual por frame.
@@ -287,6 +334,7 @@ python tools/run_dual_flash_experiment.py \
   --output-dir data/dual_experiments/phase2_statistical_reconstruction_matrix \
   --port /dev/ttyUSB0 \
   --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --raw \
+  --preview \
   --save-detected-frames \
   --auto-exposure manual --exposure 20 --exposure-auto-priority 0 \
   --metric max --threshold-delta 4 --sigma-multiplier 1.0 \
@@ -298,6 +346,7 @@ python tools/run_dual_flash_experiment.py \
   --output-dir data/dual_experiments/phase2_statistical_reconstruction_matrix \
   --port /dev/ttyUSB0 \
   --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --raw \
+  --preview \
   --save-detected-frames \
   --auto-exposure manual --exposure 20 --exposure-auto-priority 0 \
   --metric max --threshold-delta 4 --sigma-multiplier 1.0 \
@@ -309,6 +358,7 @@ python tools/run_dual_flash_experiment.py \
   --output-dir data/dual_experiments/phase2_statistical_reconstruction_matrix \
   --port /dev/ttyUSB0 \
   --index 2 --width 640 --height 480 --fps 30 --fourcc YUYV --raw \
+  --preview \
   --save-detected-frames \
   --auto-exposure manual --exposure 20 --exposure-auto-priority 0 \
   --metric max --threshold-delta 4 --sigma-multiplier 1.0 \

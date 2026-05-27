@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
+import random
 import re
 import subprocess
 import sys
@@ -13,15 +15,20 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from led_serial_control import send_command
-
-try:
-    import serial
-except ImportError as exc:  # pragma: no cover - exercised only without dependency
-    raise SystemExit("pyserial is not installed. Run: python -m pip install -r requirements.txt") from exc
-
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from analysis.aggregate import (
+    CAMERA0_THRESHOLD_CAMPAIGN_ID,
+    FIXED_PULSES_PER_DUTY,
+    REQUIRED_CAMERA0_DUTIES,
+    generate_camera0_threshold_artifacts,
+)
+try:
+    from led_serial_control import send_command
+except ModuleNotFoundError:  # pragma: no cover - package import path for tests
+    from tools.led_serial_control import send_command
 DETECTOR = PROJECT_ROOT / "tools" / "webcam_flash_detector.py"
 SUMMARY_PATTERNS = {
     "detected_frames": re.compile(r"Detected frames:\s+(\d+)"),
@@ -108,6 +115,10 @@ def parse_detector_output(output: str) -> dict[str, str | int | float]:
 
 
 def send_train(args: argparse.Namespace, duty: int) -> str:
+    try:
+        import serial
+    except ImportError as exc:  # pragma: no cover - exercised only without dependency
+        raise SystemExit("pyserial is not installed. Run: python -m pip install -r requirements.txt") from exc
     command = f"train {args.count} {args.period_ms} {args.duration_ms} {duty}"
     train_wait = max(
         args.read_wait,
@@ -151,7 +162,93 @@ def run_one(args: argparse.Namespace, duty: int) -> dict[str, str | int | float]
     return result
 
 
+def build_camera0_campaign_plan(
+    campaign_id: str,
+    camera_index: int,
+    pulses_per_duty: int = FIXED_PULSES_PER_DUTY,
+    seed: int = 7,
+) -> list[dict[str, int | str | bool]]:
+    duties = sorted(REQUIRED_CAMERA0_DUTIES)
+    pulse_counts = {duty: 0 for duty in duties}
+    rows: list[dict[str, int | str | bool]] = []
+    rng = random.Random(seed)
+    for block_id in range(1, pulses_per_duty + 1):
+        block_duties = duties[:]
+        rng.shuffle(block_duties)
+        for block_order, duty in enumerate(block_duties, start=1):
+            pulse_counts[duty] += 1
+            rows.append(
+                {
+                    "campaign_id": campaign_id,
+                    "camera_index": camera_index,
+                    "duty": duty,
+                    "pulse_index": pulse_counts[duty],
+                    "block_id": block_id,
+                    "block_order": block_order,
+                    "is_dark_control": duty == 0,
+                    "is_positive_control": duty in {16, 24, 32, 48, 64, 128},
+                }
+            )
+    return rows
+
+
+def emit_plan_only(args: argparse.Namespace) -> int:
+    if args.run_intent != "threshold":
+        raise SystemExit("--emit-plan-only requires --run-intent threshold")
+    plan_rows = build_camera0_campaign_plan(
+        campaign_id=args.campaign_id,
+        camera_index=args.index,
+        pulses_per_duty=FIXED_PULSES_PER_DUTY,
+        seed=args.plan_seed,
+    )
+    output_path = Path(args.plan_output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = list(plan_rows[0].keys()) if plan_rows else []
+    with output_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(plan_rows)
+
+    metadata = {
+        "campaign_id": args.campaign_id,
+        "run_intent": args.run_intent,
+        "camera_index": args.index,
+        "plan_rows": len(plan_rows),
+        "duties": sorted(REQUIRED_CAMERA0_DUTIES),
+        "pulses_per_duty": FIXED_PULSES_PER_DUTY,
+        "plan_output": str(output_path),
+    }
+    print(json.dumps(metadata, indent=2, sort_keys=True))
+    return 0
+
+
+def emit_offline_artifacts(args: argparse.Namespace) -> int:
+    input_path = Path(args.offline_input_csv)
+    if not input_path.exists():
+        raise SystemExit(f"offline input CSV not found: {input_path}")
+    with input_path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    result = generate_camera0_threshold_artifacts(
+        input_rows=rows,
+        studies_dir=Path(args.studies_dir),
+        campaign_id=args.campaign_id,
+        camera_index=args.index,
+    )
+    result["run_intent"] = args.run_intent
+    result["camera_index"] = args.index
+    result["campaign_id"] = args.campaign_id
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
 def run(args: argparse.Namespace) -> int:
+    if args.emit_plan_only:
+        return emit_plan_only(args)
+    if args.emit_offline_artifacts:
+        return emit_offline_artifacts(args)
+    if args.run_intent == "threshold" and args.index != 0:
+        raise SystemExit("threshold run_intent requires --index 0")
+
     duties = parse_duties(args.duties)
     output_path = Path(args.output) if args.output else default_output_path(Path(args.output_dir))
     rows = []
@@ -210,6 +307,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trigger-delay", type=float, default=0.7)
     parser.add_argument("--between-tests", type=float, default=0.5)
     parser.add_argument("--index", type=int, default=2)
+    parser.add_argument("--campaign-id", required=True)
+    parser.add_argument("--run-intent", choices=("threshold", "tuning"), required=True)
     parser.add_argument("--width", type=int, default=640)
     parser.add_argument("--height", type=int, default=480)
     parser.add_argument("--fps", type=int, default=30)
@@ -229,6 +328,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default="data/webcam")
     parser.add_argument("--save-detected-frames", action="store_true", help="Save PNG frames detected as flashes")
     parser.add_argument("--frames-dir", default="data/webcam/flash_presentation/intensity", help="Base directory for detected PNG frames")
+    parser.add_argument("--emit-plan-only", action="store_true", help="Only emit offline campaign plan CSV; do not run hardware")
+    parser.add_argument("--plan-seed", type=int, default=7)
+    parser.add_argument(
+        "--plan-output",
+        default="data/derived/studies/camera0_intensity_campaign_plan.csv",
+        help="CSV output path for --emit-plan-only mode",
+    )
+    parser.add_argument("--emit-offline-artifacts", action="store_true", help="Generate camera0 artifacts from offline fixture CSV")
+    parser.add_argument("--offline-input-csv", default="data/derived/studies/camera0_fixture_input.csv")
+    parser.add_argument("--studies-dir", default="data/derived/studies")
     return parser.parse_args()
 
 

@@ -87,8 +87,21 @@ def load_dual_runs(repo_root: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def rank_dual_runs(dual_runs: pd.DataFrame, selection_limit: int = DEFAULT_SELECTION_LIMIT) -> pd.DataFrame:
+def require_campaign_filter_for_new_mount(dual_runs: list[dict[str, object]], campaign_id: str | None) -> None:
+    has_new_mount = any(str(row.get("mount_context", "")) == "new-camera-mount" for row in dual_runs)
+    if has_new_mount and not campaign_id:
+        raise ValueError("campaign filter is required for new-camera-mount reconstruction")
+
+
+def rank_dual_runs(
+    dual_runs: pd.DataFrame,
+    selection_limit: int = DEFAULT_SELECTION_LIMIT,
+    campaign_id: str | None = None,
+) -> pd.DataFrame:
     ranked = dual_runs.copy()
+    if campaign_id:
+        ranked = ranked.loc[ranked["campaign_id"].astype(str) == campaign_id].copy()
+    require_campaign_filter_for_new_mount(ranked.to_dict("records"), campaign_id=campaign_id)
     ranked["limited_coverage_flag"] = ranked["limited_coverage"].astype(str).str.lower() == "true"
     ranked["variant_priority"] = np.where(
         ranked["variant"].eq("phase2_statistical_reconstruction_matrix"),
@@ -854,11 +867,15 @@ def write_reconstruction_overview(
     return path
 
 
-def build_reconstruction(repo_root: Path | None = None, selection_limit: int = DEFAULT_SELECTION_LIMIT) -> dict[str, object]:
+def build_reconstruction(
+    repo_root: Path | None = None,
+    selection_limit: int = DEFAULT_SELECTION_LIMIT,
+    campaign_id: str | None = None,
+) -> dict[str, object]:
     root = find_repo_root(repo_root)
     output_dir = reconstruction_dir(root)
     dual_runs = load_dual_runs(root)
-    ranked_runs = rank_dual_runs(dual_runs, selection_limit=selection_limit)
+    ranked_runs = rank_dual_runs(dual_runs, selection_limit=selection_limit, campaign_id=campaign_id)
     selected_runs, pulses, coincidence_tables = load_selected_pulses(root, ranked_runs)
     frames_by_run = extract_run_frames(root, selected_runs, pulses)
     selection_csv = write_selection_csv(root, ranked_runs, output_dir)

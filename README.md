@@ -263,7 +263,7 @@ Comandos de firmware disponibles para este flujo:
 python tools/led_serial_control.py --port /dev/ttyUSB0 sensor status
 python tools/capture_op598_response.py --port /dev/ttyUSB0 sample --sample-count 200 --sample-delay 1 --sample-unit ms
 python tools/capture_op598_response.py --port /dev/ttyUSB0 pulse --duration-ms 40 --duty 1023 --pre-ms 40 --post-ms 120 --sample-us 1000
-python tools/run_dual_flash_experiment.py --port /dev/ttyUSB0 --index 2 --raw --auto-exposure manual --exposure 10 pulse --duration-ms 40 --duty 1023
+python tools/run_dual_flash_experiment.py --port /dev/ttyUSB0 --index 2 --raw --preview --auto-exposure manual --exposure 10 pulse --duration-ms 40 --duty 1023
 ```
 
 Interpretación correcta:
