@@ -1,0 +1,12 @@
+duty,exposure,replicates,mean_detection_probability,median_detection_probability,detected_total_events,bounded_detected_total,expected_total_pulses
+6,3.0,1,1.0,1.0,3,3,3
+6,5.0,1,1.0,1.0,6,3,3
+6,10.0,1,1.0,1.0,4,3,3
+6,20.0,1,1.0,1.0,3,3,3
+6,40.0,1,1.0,1.0,3,3,3
+8,1.0,1,0.666667,0.666667,2,2,3
+8,3.0,1,0.0,0.0,0,0,3
+8,5.0,1,1.0,1.0,3,3,3
+8,10.0,1,1.0,1.0,3,3,3
+8,20.0,1,1.0,1.0,3,3,3
+8,40.0,1,1.0,1.0,3,3,3
