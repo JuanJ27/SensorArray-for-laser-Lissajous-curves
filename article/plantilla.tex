@@ -6,24 +6,19 @@
 \usepackage[spanish,english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{newtxtext,newtxmath}
+\usepackage{lmodern}
 \usepackage[left=1.5cm, right=1.5cm, top=2cm, bottom=2cm, columnsep=0.8cm]{geometry}
 \usepackage{titlesec}
 \usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{fancyhdr}
+\usepackage[hypertexnames=false]{hyperref}
 \usepackage{cite}
 \usepackage{parskip}
+\usepackage{float}
 
 %-----------------------------
 % Formato encabezado
 %-----------------------------
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\small IOP Publishing $\vert$ Journal Title}
-\fancyhead[R]{\small Journal XX (XXXX) XXXXXX}
-\renewcommand{\headrulewidth}{0pt}
-\cfoot{\thepage}
+\pagestyle{plain}
 
 %-----------------------------
 % Formato títulos
@@ -46,21 +41,16 @@
 \begin{document}
 
 \selectlanguage{english}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
 
-% El entorno @twocolumnfalse permite poner contenido a una sola columna (el título y abstract)
-% y que el resto del documento fluya en las dos columnas puestas en el documentclass.
+% El entorno @twocolumnfalse permite poner contenido a una sola columna (el título y resumen)
 \twocolumn[
   \begin{@twocolumnfalse}
-    
-    % Logos u opcional
-    \noindent {\small \textbf{IOP Publishing} \hfill \textbf{Journal Title}} \\
-    \noindent {\small Journal XX (XXXX) XXXXXX \hfill \url{https://doi.org/XXXX/XXXX}}
-    
-    \vspace{1.5cm}
+    \vspace{0.5cm}
     
     % Título
-    {\Huge \textbf{Diseño del  montaje experimental para la reproducción y detección del fenómeno de la sonoluminiscencia}}
-
+    {\Huge \textbf{Diseño del montaje experimental para la reproducción y detección del fenómeno de la sonoluminiscencia}}
     
     \vspace{0.8cm}
     
@@ -73,20 +63,18 @@
     
     \vspace{0.4cm}
     
-    % Correspondencia y fechas
+    % Correspondencia
     {\small \textbf{E-mail:} \url{juan.montoya110@udea.edu.co}, \url{jose.ortizc@udea.edu.co}}
     
     \vspace{0.8cm}
     
-    % Abstract
-    \textbf{\large Abstract} \\
-    Sample text inserted for illustration. Replace with abstract text. Your abstract should give
-    readers a brief summary of your article. It should concisely describe the contents of your
-    article, and asaaaaaaaaaaaaaaaaaaaaaaa
+    % Resumen
+    \textbf{\large Resumen} \\
+    \textit{Este trabajo presenta el diseño y validación de un montaje experimental optoelectrónico concebido para estudiar la detectabilidad de destellos luminosos transitorios y de baja intensidad, tomando como motivación instrumental el fenómeno de la sonoluminiscencia. Se implementó un análogo controlado utilizando un microcontrolador ESP32, un diodo emisor de luz (LED), un fototransistor OP598 y una cámara web comercial dentro de un cerramiento oscuro. La investigación reveló empíricamente que la cámara resulta ciega ante pulsos rápidos, inferiores a \(20\,\mathrm{ms}\), o bajo regímenes de emisión extremadamente tenues, debido a la combinación de su límite físico de submuestreo asíncrono y la desviación estándar de su ruido de fondo. Para sortear esta restricción metrológica, el canal analógico OP598 se caracterizó y validó como un ancla temporal de alta fidelidad, capaz de demarcar la ocurrencia del destello aun cuando su amplitud experimenta una rápida saturación digital. Mediante el emparejamiento de estas marcas temporales fiduciarias y la superposición estadística asíncrona de múltiples fotogramas, el montaje logró cancelar las fluctuaciones térmicas del sensor y reconstruir visualmente la huella de eventos que resultaban invisibles de manera aislada. El sistema ofrece una ruta experimental reproducible para validar algoritmos de detección fotónica antes de escalar a detectores de dinámica ultrarrápida.}
     
     \vspace{0.3cm}
     
-    \textbf{Keywords:} term, term, term
+    \textbf{Palabras clave:} sonoluminiscencia, detectabilidad óptica, fototransistor, cámara web, reconstrucción estadística, submuestreo
     
     \vspace{1cm}
   \end{@twocolumnfalse}
@@ -95,42 +83,119 @@
 %-----------------------------
 % Secciones a doble columna
 %-----------------------------
-\section{Introduccion}
+\section{Introducción}
 
-El fenómeno de la sonoluminiscencia consiste en la transducción de energía acústica en emisiones de luz, producida por el colapso violento y periódico de burbujas de gas atrapadas en el interior de un líquido sometido a ondas ultrasónicas \cite{gaitan1992, brenner2002}. Aunque a nivel físico general este proceso se caracteriza por generar condiciones termodinámicas extremas, desde una perspectiva metrológica sus rasgos más relevantes radican en su naturaleza transitoria extrema. Los destellos luminosos emitidos poseen duraciones ultracortas, frecuentemente registradas por debajo de los 100 picosegundos, y exhiben una intensidad sumamente baja, llegando a emitir apenas del orden de un millón de fotones por pulso \cite{barber1992, gompf1997}. La caracterización de eventos que combinan de manera simultánea una alta velocidad con una baja intensidad lumínica impone un desafío instrumental dado que los sensores fotónicos enfrentan un límite físico fundamental entre la resolución temporal y la relación señal-ruido. Por ejemplo, equipos altamente especializados como las cámaras de barrido (streak cameras) logran resoluciones temporales en el rango de los picosegundos, pero su baja eficiencia cuántica ante haces de luz tan tenues obliga frecuentemente a promediar la emisión de miles de pulsos sucesivos para obtener una medición viable, perdiendo así la información dinámica de cada evento individual \cite{pecha2000}. De igual forma, las cámaras de alta velocidad convencionales, basadas en sensores CCD o CMOS, resultan útiles para registrar la dinámica macroscópica y la oscilación radial de la burbuja, pero carecen de la velocidad de obturación y la sensibilidad requerida (conteo de fotón único) para medir la curva de intensidad del destello aislado sin que la señal quede completamente enmascarada por el ruido térmico y de lectura del propio sensor.
+El fenómeno de la sonoluminiscencia consiste en la transducción de energía acústica en emisiones de luz, un proceso originado por el colapso violento y periódico de burbujas de gas atrapadas en el interior de un líquido sometido a ondas ultrasónicas estacionarias \cite{gaitan1992, brenner2002}. Aunque desde la perspectiva física general este proceso es de gran interés por las condiciones termodinámicas extremas que genera en el núcleo de la burbuja, desde un punto de vista metrológico e instrumental sus rasgos más desafiantes radican en su naturaleza transitoria. Los destellos luminosos emitidos poseen duraciones ultracortas, frecuentemente documentadas por debajo de los 100 picosegundos, y exhiben una intensidad sumamente baja, llegando a emitir apenas del orden de un millón de fotones por pulso \cite{barber1992, gompf1997}.
 
-Para superar las restricciones inherentes a la captura de eventos ópticos ultrarrápidos y tenues, el estado del arte instrumental se ha focalizado en el desarrollo de detectores de estado sólido de fotón único y arquitecturas de registro temporal de extrema precisión \cite{becker2005}. Históricamente, la técnica de Conteo de Fotones Individuales Correlacionados en el Tiempo (TCSPC) se ha consolidado como el estándar metrológico para alcanzar resoluciones en el régimen de los picosegundos; sin embargo, su aplicación clásica suele requerir la integración estadística de múltiples ciclos de excitación, limitando la caracterización de eventos transitorios únicos e irrepetibles \cite{bruschini2019}. En la actualidad, este nicho tecnológico está liderado por la adopción de matrices de Diodos de Avalancha de Fotón Único (SPAD arrays) y Fotomultiplicadores de Silicio (SiPM), dispositivos capaces de operar en modo Geiger para registrar la llegada de fotones individuales con un nivel de ruido de lectura virtualmente nulo y tasas de muestreo en el rango de los gigahercios \cite{becker2005, mccarthy2013}. Para garantizar la fidelidad de las mediciones, resulta indispensable someter estos equipos a procesos de calibración rigurosos mediante sistemas capaces de generar pulsos lumínicos artificiales altamente controlados, los cuales deben emular con exactitud las exigentes condiciones de velocidad y atenuación que presentan los fenómenos físicos naturales de esta índole.
+La caracterización de eventos que combinan simultáneamente una alta velocidad con una baja intensidad lumínica impone un límite físico fundamental a los sensores fotónicos: el compromiso entre la resolución temporal y la relación señal-ruido. Por ejemplo, equipos altamente especializados como las cámaras de barrido (streak cameras) logran resoluciones temporales en el rango de los picosegundos, pero su baja eficiencia cuántica ante haces de luz tan tenues obliga frecuentemente a promediar la emisión de miles de pulsos sucesivos para obtener una medición viable, sacrificando así la información dinámica de cada evento individual \cite{pecha2000}. De forma análoga, las cámaras de alta velocidad convencionales basadas en sensores CCD o CMOS resultan idóneas para registrar la dinámica macroscópica de la burbuja, pero carecen de la sensibilidad necesaria para medir la curva de intensidad de un destello aislado sin que la señal quede completamente enmascarada por el ruido térmico y el ruido de lectura del dispositivo.
 
-En este contexto, el presente proyecto se centra en el diseño, caracterización y validación de un montaje experimental optoelectrónico concebido para la detección y medición de destellos lumínicos con características análogas a la sonoluminiscencia. Como paso previo a la implementación de sensores de alta complejidad, se propone el desarrollo de un entorno de simulación basado en hardware accesible, utilizando un microcontrolador ESP32 y un diodo emisor de luz (LED) confinados en una cámara de aislamiento oscuro para generar pulsos ultrarrápidos y de intensidad modulable. Para la adquisición de los eventos, se integra una cámara web comercial, lo que impone un desafío metrológico de submuestreo temporal severo frente a la latencia de microsegundos del pulso luminoso generado. Para sortear esta limitación física del sensor de adquisición convencional, se introduce y evalúa una metodología algorítmica basada en la superposición de fotogramas. Mediante el registro asíncrono y la integración estadística de múltiples eventos periódicos, este método permite reconstruir de forma indirecta la curva transitoria de emisión del destello. Así, este trabajo busca validar la eficacia de técnicas computacionales de procesamiento de imágenes acopladas a instrumentación estándar, estableciendo las bases tecnológicas y metodológicas fundamentales para la futura medición experimental de la sonoluminiscencia real.
+Para superar estas restricciones inherentes, el estado del arte instrumental se ha focalizado en la adopción de detectores de estado sólido de fotón único y arquitecturas de registro temporal de extrema precisión \cite{becker2005}. Históricamente, la técnica de Conteo de Fotones Individuales Correlacionados en el Tiempo (TCSPC) se ha consolidado como el estándar; y en la actualidad, esta área está liderada por matrices de Diodos de Avalancha de Fotón Único (SPAD) y Fotomultiplicadores de Silicio (SiPM), dispositivos que operan en modo Geiger para registrar la llegada de fotones individuales con tasas de muestreo en el rango de los gigahercios \cite{bruschini2019, mccarthy2013}. Sin embargo, antes de implementar y calibrar equipos de esta envergadura en montajes reales, es indispensable disponer de entornos de simulación y bancos de pruebas controlados que logren emular las problemáticas de submuestreo y baja relación señal-ruido.
+
+En este contexto, el presente proyecto se centra en el diseño, caracterización y validación de un montaje experimental optoelectrónico concebido como un banco de pruebas para la detección de eventos asíncronos tenues. Integrando un microcontrolador ESP32, un diodo emisor de luz (LED) y un sensor comercial tipo CMOS confinados en una cámara oscura, se construye un entorno donde la duración del estímulo luminoso es deliberadamente inferior a la ventana de exposición de la cámara. Al someter a prueba los límites del sensor frente a registros individuales, se introduce una metodología algorítmica basada en la superposición estadística de fotogramas, utilizando un fototransistor auxiliar como ancla temporal. Este trabajo busca validar la eficacia de métodos computacionales aplicados a instrumentación accesible, estableciendo una base sólida para la futura caracterización metrológica de fenómenos ultrarrápidos como la sonoluminiscencia.
 
 \section{Metodología}
 
-El diseño y validación del sistema de detección para eventos luminosos transitorios se estructuró en tres fases experimentales correlacionadas. Dada la brevedad del estímulo luminoso frente a las limitaciones impuestas por el submuestreo de un hardware de adquisición de video convencional, la metodología descarta una grabación directa de alta velocidad y emplea, en su lugar, un modelo estadístico de coincidencias cruzadas. Inicialmente, se caracterizó el nivel de respuesta y la latencia de un canal optoelectrónico de estado sólido auxiliar. Seguidamente, se determinaron los umbrales de sensibilidad del sensor fotográfico principal dentro de un cerramiento aislado. Finalmente, se diseñó e implementó un algoritmo de validación dual encargado de reconstruir la dinámica transitoria del destello mediante técnicas de promediado de fases apoyadas en un emparejamiento temporal asíncrono.
+El diseño y validación del sistema de detección se estructuró en tres fases experimentales correlacionadas. La metodología no buscó registrar directamente un destello de sonoluminiscencia real ni resolver su microdinámica en la escala de los picosegundos; el propósito fue construir un análogo óptico controlado que permitiera enfrentar las problemáticas del submuestreo temporal y el ruido de fondo, evaluando la detectabilidad y la reconstrucción algorítmica bajo instrumentación convencional. 
 
-\subsection{Caracterización temporal del sistema analógico emisor-sensor}
-Para establecer una referencia de sincronización firme (ancla temporal) que operase a mayor velocidad que la tasa de fotogramas del sensor de video, se implementó un circuito guiado por un microcontrolador ESP32. Este dispositivo lógico se encargó de emitir señales moduladas por ancho de pulso (PWM) hacia un diodo LED, y de capturar simultáneamente la refracción de luz usando un fototransistor analógico OP598 acoplado a un convertidor analógico a digital (ADC). 
+El montaje hizo uso de un microcontrolador ESP32 como unidad central de comando, un LED modulable por ancho de pulso (PWM) como fuente emisora, un fototransistor OP598 acondicionado al convertidor analógico-digital (ADC) interno de 12 bits, y una cámara web estándar actuando como canal visual principal, todo ello contenido en un recinto a prueba de luz ambiental.
 
-Para cuantificar los límites empíricos de adquisición de tal hardware, se diseñó un protocolo de sondeo continuo (\textit{polling}). Este procedimiento evaluó la diferencia temporal mínima entre la orden dictada para la excitación del LED y la confirmación de lectura en el fototransistor tras superar su propio umbral basal. Al determinar la latencia real y la resolución efectiva de adquisición de este circuito de estado sólido, se comprobó su viabilidad metrológica para actuar como árbitro temporal. En consecuencia, el registro instantáneo obtenido por el fototransistor fue establecido formalmente como el ancla de sincronización para los pasos subsecuentes del estudio.
+\subsection{Caracterización de la referencia analógica}
+La primera fase consistió en caracterizar la cadena operativa formada por el ESP32, el LED y el OP598. El objetivo principal de este canal no fue operar como un luxómetro absoluto, sino establecer un sistema de referencia temporal interno para el evento generado. Dado que la cámara web adquiere cuadros de forma asíncrona respecto al disparo del LED, era necesario construir un ``ancla temporal'' paralela e independiente.
 
-\subsection{Acondicionamiento optoelectrónico y detectabilidad visual}
-Una vez validada la referencia de hardware rápida, se evaluaron las cotas de detectabilidad espacial del sistema comercial de captura de video (cámara web). El ensayo tuvo lugar en el interior de una cámara opaca acondicionada visualmente frente al ruido ambiental, escenario necesario para lograr que eventos constituidos por ínfimas tasas fotométricas fuesen disociables frente a los falsos positivos producidos por la excitación o el ruido térmico del propio sensor CMOS de la cámara.
+Para este fin, se implementó un protocolo de sondeo continuo en el ADC. En cada ciclo de prueba se cuantificó un nivel basal oscuro de reposo; seguidamente, el microcontrolador activó el LED con una duración y potencia definidas, registrando el instante exacto en el que la señal de voltaje del fototransistor cruzó un umbral de activación preestablecido. Esta marca temporal fiduciaria dotó al montaje de una resolución cronológica fundamental para el posterior emparejamiento algorítmico, independizando el instante del destello de la baja tasa de refresco del video.
 
-El procedimiento computacional consistió en analizar consecutivamente el espacio ininterrumpido. Se cuantificó la base de iluminación ambiental latente tomando como base métrica el promedio del ruido provocado en estado de reposo (\textit{dark-control}). Posteriormente, se clasificó como ``fotograma detectado'' a aquel donde la intensidad de los píxeles integrados sobrepasara un porcentaje diferencial mínimo sobre dicho nivel estático basal. Tras el acondicionamiento, se corrieron barridos automatizados (\textit{sweeps}) aislados que iteraban las variables configurables del ensayo, a saber, el ciclo de trabajo o esfuerzo de ignición del LED, la duración neta del pulso emitido, y los factores de exposición fotográfica de la cámara. Este proceso permitió establecer sistemáticamente de qué magnitudes requeriría un destello puntual para sembrar huella analizable en el cauce temporal del flujo de video.
+\subsection{Límites de detectabilidad visual y barrido paramétrico}
+La segunda fase evaluó las capacidades intrínsecas del sensor CMOS de la cámara para registrar el pulso de manera aislada. Dado que el sensor integra fotones a lo largo de un ciclo de exposición asíncrono, el criterio de éxito no se basó en resolver la forma temporal del pulso, sino en cuantificar si la energía acumulada generaba una huella superior al ruido térmico del dispositivo.
 
-\subsection{Reconstrucción estadística asíncrona por superposición espacial}
-La última fase experimental unificó ambos sistemas para plantear una solución algorítmica al conflicto del submuestreo temporal. Al tratarse de un sensor de video que posee ventanas de inactividad mientras procesa o renueva un cuadro integrado, existía la probabilidad inherente de que sucesos rápidos transcurrieran dentro de la fracción pasiva del obturador ciego. Para disipar el sesgo y anular un posible emparejamiento estático inercial (\textit{phase lock}) a los refrescos constantes del entorno, se efectuaron lanzamientos duales asíncronos bajo un esquema estocástico con un tren de múltiples igniciones separadas por pausas de tiempos virtual y matemáticamente aleatorios.
+Para minimizar falsos positivos, se caracterizó estadísticamente el fondo oscuro del sensor, derivando métricas de brillo máximo y brillo medio por fotograma, sobre las cuales se calculó un umbral de corte estricto basado en tres desviaciones estándar. Una vez definido este límite de sensibilidad empírica, se procedió con barridos automatizados de los parámetros operacionales: variaciones del ciclo de trabajo PWM (modulando la intensidad emitida), ajustes en la duración milisegundal del pulso, y cambios en el tiempo de exposición de la cámara. Cada fotograma fue clasificado binariamente (detectado o no detectado) para construir curvas de probabilidad que ilustraran las fronteras ciegas del sistema.
 
-Durante estas sesiones, el fototransistor analógico recopiló la hora y latitud precisos en que su componente físico asimiló el resplandor principal. Concluida la captura paralela en ambas vías, un análisis computacional externo (\textit{offline}) se encargó del rastreo. Se revisó de manera algorítmica la línea de tiempo del código de video, determinando la ventana probabilística más cercana al marcador temporal del OP598. Este análisis emparejó los datos de la forma más idónea posible para definir cuál en todo el lote era el instante de mayor fulgor (fotograma \textit{hit}). Con este cruce ejecutado y la confirmación en el punto temporal correcto, la matriz extrajo de manera simétrica los fotogramas circunscritos antes y después del mismo. Finalmente, al apilar por capas sucesivas todos los micro-desgloses recopilados dentro del grueso estocástico y promediar estadísticamente el conjunto píxel por píxel, fue posible consolidar imágenes continuadas de la respuesta estructural fenoménica, posibilitando una aproximación cualitativa al evento real por medio de instrumentación convencional subóptima.
+\subsection{Reconstrucción estadística asíncrona}
+Habiendo establecido las limitaciones de adquirir el destello en un único fotograma, la tercera fase se enfocó en eludir el problema del submuestreo mediante una técnica de reconstrucción por coincidencias. Para evitar el bloqueo de fase --es decir, que el destello coincidiera sistemáticamente con la misma ventana de integración de la cámara--, el ESP32 generó trenes de pulsos con intervalos pseudo-aleatorios (entre 1.8 y 2.1 segundos).
+
+Tras la captura de un set de eventos iterados, el algoritmo analizó la tabla de anclas temporales generada por el OP598 y la contrastó con las marcas de tiempo de los fotogramas del flujo de video, aislando la imagen más cercana a cada evento analógico. Posteriormente, los fotogramas coincidentes y sus inmediatos adyacentes (instantes previos y posteriores) se extrajeron, apilaron en matrices tridimensionales y se promediaron espacialmente píxel por píxel. Esta convergencia estadística fue diseñada para atenuar las componentes aleatorias del ruido térmico y consolidar las huellas luminosas consistentes.
+
+\section{Resultados}
+
+\subsection{Caracterización del canal OP598--ADC}
+
+La evaluación inicial de la cadena analógica de adquisición determinó un intervalo de muestreo efectivo del ADC de \(\sim 6.73\,\mathrm{ms}\). Si bien este retardo computacional es muy superior a la respuesta en microsegundos inherente al semiconductor del OP598, se comprobó que otorga la granularidad temporal suficiente para operar como el reloj de referencia frente a los fotogramas de la cámara. Adicionalmente, el aislamiento lumínico del montaje probó ser exitoso, estableciendo una línea base oscura de \(2950.1 \pm 61.3\) cuentas (sobre el fondo máximo de 4095 del ADC de 12 bits), la cual encapsuló el ruido de cuantización y térmico del sistema en reposo.
+
+Al someter el sensor a diferentes intensidades luminosas mediante variaciones del ciclo de trabajo (duty cycle) del LED, se observó el comportamiento detallado en la Figura \ref{fig:amplitud-duty}. La respuesta en amplitud experimentó una rápida saturación fotométrica; para valores de duty iguales o superiores a 128, la señal alcanzó el máximo rango dinámico (4095 cuentas). No obstante, los ciclos de trabajo bajos (entre 8 y 32) reportaron valores inferiores, como 3307 y 3915 cuentas respectivamente. Esto delimitó el régimen operativo donde variaciones sutiles de intensidad aún generaban cambios proporcionales antes de sufrir truncamiento digital.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{sources/figura1_amplitud_vs_duty.pdf}
+  \caption{Respuesta de amplitud máxima en el canal OP598--ADC frente al incremento del ciclo de trabajo del LED para estímulos de $200\,\mathrm{ms}$. Se evidencia la inmediata saturación del canal analógico, limitando su linealidad exclusivamente a los regímenes más bajos de intensidad.}
+  \label{fig:amplitud-duty}
+\end{figure}
+
+Pese a esta rápida pérdida de linealidad en amplitud, la respuesta en el dominio del tiempo validó la funcionalidad del OP598 como un interruptor lógico robusto. La serie temporal de un evento unitario (Figura \ref{fig:pulso-temporal}) mostró un flanco de subida abrupto, una meseta de saturación estable y un flanco de bajada bien definido, cualidades esenciales para enmarcar con certeza la existencia de un destello.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{sources/figura2_serie_temporal_pulso.pdf}
+  \caption{Registro temporal crudo de un pulso representativo detectado por el fototransistor. El rápido cruce desde el nivel basal de oscuridad hacia el techo digital reafirma la viabilidad de utilizar esta señal para fijar marcas temporales precisas.}
+  \label{fig:pulso-temporal}
+\end{figure}
+
+Para cuantificar definitivamente la fidelidad temporal de este canal, se fijó la saturación al máximo nivel lumínico y se inyectaron pulsos de duraciones controladas de hardware. Como indica la Figura \ref{fig:duracion-medida}, los estímulos comandados a 30, 100, 200 y \(400\,\mathrm{ms}\) generaron anchos medidos de 27.5, 100.1, 206.3 y \(400.6\,\mathrm{ms}\). La casi perfecta adhesión a la respuesta ideal garantiza que el sistema electrónico no deforma la cronología del evento.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{sources/figura3_duracion_medida_vs_configurada.pdf}
+  \caption{Relación entre el ancho de pulso programado en el LED y la duración capturada por el muestreo del ADC. La recta de tendencia uno a uno avala la cadena de medición como un reloj fiduciario confiable para el estudio asíncrono.}
+  \label{fig:duracion-medida}
+\end{figure}
+
+\subsection{Límites críticos de la detectabilidad visual}
+
+La segunda fase arrojó luz sobre las profundas restricciones de una cámara comercial ante estímulos submuestreados. El análisis de fotogramas en negro arrojó un brillo medio de apenas \(17.341 \pm 0.005\) cuentas y un brillo máximo local de \(24.40 \pm 1.94\) cuentas. La aplicación del criterio estadístico de tres sigmas elevó el umbral estricto de detección visual a la cota de 30.22 cuentas, valor exigido para asegurar que cualquier destello superara las variaciones aleatorias del fondo térmico del silicio.
+
+Evaluando la tasa de captura frente a series agregadas de 180 pulsos en el rango lineal bajo (Figura \ref{fig:detectabilidad_duty}), se descubrió una total ineficacia del sistema visual entre los cycles de duty 0 a 3. La probabilidad empírica de detectar la huella luminosa del evento de forma aislada emergió en el duty 4 con un discreto \(p = 0.078 \pm 0.035\), y se estabilizó rápidamente cerca del valor \(p \approx 0.12\) a partir del duty 8. Este comportamiento estancado demostró empíricamente el problema de fase: aun incrementando la intensidad, si el obturador electrónico no se solapa con el transitorio, la cámara es estructuralmente ciega al evento.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{sources/figura4_detectabilidad_vs_duty.pdf}
+  \caption{Evolución de la probabilidad de captura en la cámara web frente al duty cycle (baja emisión). El tope probabilístico ilustra el límite impuesto por el submuestreo, evidenciando la pérdida de la gran mayoría de los eventos.}
+  \label{fig:detectabilidad_duty}
+\end{figure}
+
+El impacto de la duración del estímulo sobre esta frontera sensórica se detalla en la Figura \ref{fig:detectabilidad_duracion}. Bajo regímenes de emisión tenues, todo evento más rápido de \(20\,\mathrm{ms}\) pasó por debajo del radar óptico (\(p=0.0\)). Fue necesario extender forzosamente la iluminación continua hasta los \(100\,\mathrm{ms}\) y \(200\,\mathrm{ms}\) (para duties de 8 y 6 respectivamente) para alcanzar una detectabilidad garantizada del cien por ciento. Asimismo, los ensayos prolongando intencionalmente los tiempos de exposición en la configuración de la cámara no arrojaron mejoras monótonas en las detecciones cortas, reconfirmando que en ausencia de sincronización estricta por hardware, un sensor lento pierde irremisiblemente la información del pulso.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{sources/figura5_detectabilidad_vs_duracion.pdf}
+  \caption{Mapeo probabilístico en función de la duración de emisión. La caída a cero para pulsos menores a $20\,\mathrm{ms}$ demuestra la incapacidad de un sensor de video estándar para caracterizar directamente eventos rápidos individuales.}
+  \label{fig:detectabilidad_duracion}
+\end{figure}
+
+\subsection{Reconstrucción estadística mediante ancla temporal}
+
+La superación de los severos límites observados en los registros fotográficos individuales requirió la integración de ambos canales de información. Del conjunto global de ensayos asíncronos en los que la detectabilidad visual era prácticamente nula, el software extrajo y alineó un conjunto compuesto por \textbf{30} iteraciones del destello (pulso tenue e inferior a la frecuencia de la cámara). 
+
+La búsqueda retrospectiva localizó los fotogramas coincidentes con el ancla del fototransistor, logrando un desfase estadístico temporal medio (\(\Delta t\)) de \textbf{\(37.0 \pm 10.1\,\mathrm{ms}\)}. Pese a la naturaleza asíncrona de los relojes involucrados (cámara USB frente al reloj del microcontrolador), esta acotada dispersión fue suficiente para garantizar que la brevísima porción de energía luminosa estuviera matemáticamente contenida en el cuadro extraído.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{sources/figura6_reconstruccion_secuencia.pdf}
+  \caption{Evaluación espacial de la reconstrucción asíncrona tras el apilamiento de 30 eventos. El cuadro previo ($t_{-1}$, panel A) y posterior ($t_{+1}$, panel C) mantienen el nivel de ruido basal. El fotograma fiduciario ($t_0$, panel B) consolida la energía de pulsos sub-umbrales, haciendo visible una huella que individualmente es imperceptible.}
+  \label{fig:reconstruccion}
+\end{figure}
+
+El proceso de promediado y superposición espacial obró como un filtro de ruido estructural, produciendo el resultado presentado en la Figura \ref{fig:reconstruccion}. Mientras que la evaluación unitaria de un solo evento de este set arrojaba una intensidad inmersa en la incertidumbre del ruido térmico oscuro, la apilación del flujo canceló las componentes aleatorias del sensor. Como consecuencia directa, el fotograma coincidente (\(t_0\)) reveló de forma contundente la distribución lumínica del pulso sub-umbral, generando un fuerte contraste visual que no existe ni en la ventana previa (\(t_{-1}\)) ni en la posterior (\(t_{+1}\)). Este hito práctico corrobora la efectividad de derivar certidumbre óptica a partir de la estadística de marcadores analógicos.
+
+\section{Conclusiones}
+
+El diseño, ejecución y análisis detallado de este banco de pruebas optoelectrónico subraya la extrema dificultad de abordar la medición óptica de procesos análogos a la sonoluminiscencia utilizando componentes estandarizados. Intentar el registro directo de eventos que combinan velocidad transitoria y baja emisión lumínica mediante sensores CMOS de bajo coste resulta inviable bajo enfoques de medición únicos. Sin embargo, las metodologías implementadas demuestran que este montaje es altamente valioso como entorno de desarrollo:
+
+En primer lugar, se demostró que si bien la cadena analógica encabezada por el fototransistor OP598 padece de una acusada saturación en amplitud frente a iluminaciones moderadas, su comportamiento de conmutación en el dominio del tiempo posee una excelente linealidad con la fuente de excitación. Esto consagra al sensor como un interruptor lógico de alta viabilidad y fidelidad, indispensable para inyectar marcas de sincronización (anclas) en flujos de datos asíncronos.
+
+En segundo lugar, se cuantificó metrológicamente la frontera ciega de la adquisición visual comercial. Al probar que pulsos más breves de \(20\,\mathrm{ms}\) escapan por completo de la ventana de integración efectiva, se establece el marco argumental que justifica históricamente la necesidad de detectores de estado sólido ultrarrápidos (SPAD, TCSPC) para la física de microburbujas.
+
+Finalmente, el éxito en la reconstrucción visual del destello imperceptible, ejecutada a través de un desfase temporal acotado y promedios espaciales de treinta iteraciones iteradas, demuestra el poder de las técnicas de correlación cruzada. Al cancelar eficientemente las fluctuaciones aleatorias del nivel de oscuridad y revelar la densidad fotónica oculta, este montaje hibrido se posiciona como una herramienta didáctica e instrumental replicable. Su uso preparatorio permite la depuración madura de algoritmos de coincidencia, sentando bases procedimentales sólidas antes de la adquisición de instrumentación especializada para el abordaje de la sonoluminiscencia real.
+
 %-----------------------------
-% Acknowledgements
-%-----------------------------
-\section*{Acknowledgements}
-
-Proin pharetra nonummy pede. Mauris et orci.
-
-%-----------------------------
-% Referencias
-%-----------------------------
+\renewcommand{\refname}{Referencias}
 \begin{thebibliography}{99}
 
 \bibitem{gaitan1992}
