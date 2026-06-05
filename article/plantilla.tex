@@ -101,20 +101,20 @@ El diseño y validación del sistema de detección se estructuró en tres fases 
 
 El esquema funcional del montaje se resume en la Figura~\ref{fig:montaje}.
 
-\begin{figure*}[t]
+\begin{figure}[H]
 \centering
-\begin{minipage}[t]{0.66\textwidth}
+\begin{minipage}[t]{0.48\columnwidth}
   \centering
-  \includegraphics[width=\textwidth]{montaje.pdf}
+  \includegraphics[width=\linewidth]{montaje.pdf}
 \end{minipage}
 \hfill
-\begin{minipage}[t]{0.28\textwidth}
+\begin{minipage}[t]{0.48\columnwidth}
   \centering
-  \includegraphics[width=\textwidth]{circuit.pdf}
+  \includegraphics[width=\linewidth]{circuit.pdf}
 \end{minipage}
 \caption{Montaje experimental utilizado en este trabajo. A la izquierda se muestra la disposición general del sistema dentro del recinto oscuro; en el mismo montaje, el circuito de excitación y lectura se encuentra señalado mediante un recuadro azul, mientras que la cámara web empleada para la adquisición visual aparece destacada con un recuadro verde. A la derecha se presenta el detalle del circuito eléctrico correspondiente al subsistema señalado en la fotografía del montaje.}
 \label{fig:montaje}
-\end{figure*}
+\end{figure}
 
 El montaje hizo uso de un microcontrolador ESP32 como unidad central de comando, un LED modulable por ancho de pulso (PWM) como fuente emisora, un fototransistor OP598 acondicionado al convertidor analógico-digital (ADC) interno de 12 bits, y una cámara web estándar actuando como canal visual principal, todo ello contenido en un recinto a prueba de luz ambiental.
 
